@@ -38,8 +38,8 @@ class SmartiBackendUtils {
  */
 class ChatpalSearchService {
 
-	constructor() {
-		this.baseUrl = RocketChat.settings.get('CHATPAL_BASEURL');
+	constructor(url) {
+		this.baseUrl = url;
 		this.backendUtils = SmartiBackendUtils;
 	}
 
@@ -154,17 +154,17 @@ class ChatpalSearchService {
 // Reload on settings change
 // =========================
 
-let chatpalSearchService = new ChatpalSearchService();
+let chatpalSearchService = new ChatpalSearchService('');
 
-RocketChat.models.Settings.findByIds(['CHATPAL_BASEURL', 'CHATPAL_TIME_FORMAT', 'CHATPAL_DATE_FORMAT']).observeChanges({
-	added() {
-		chatpalSearchService = new ChatpalSearchService();
+RocketChat.models.Settings.findById('CHATPAL_BASEURL').observeChanges({
+	added(n, v) {
+		chatpalSearchService = new ChatpalSearchService(v.value);
 	},
-	changed() {
-		chatpalSearchService = new ChatpalSearchService();
+	changed(n, v) {
+		chatpalSearchService = new ChatpalSearchService(v.value);
 	},
 	removed() {
-		chatpalSearchService = new ChatpalSearchService();
+		chatpalSearchService = new ChatpalSearchService('');
 	}
 });
 

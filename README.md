@@ -8,5 +8,6 @@ A Rocket.Chat package for search with chatpal backend.
 # Configure
 1. Go to Rocket.Chat Admin page and enter the Chatpal section e.g. http://localhost:3000/admin/Chatpal.
 2. Set the chatpal search endpoint url and change the other configurations if you want to.
-3. Test the connection by clicking the search icon on the right side of a channel.
-4. Have fun ;)
+3. Reload frontend.
+4. Test the connection by clicking the search icon on the right side of a channel.
+5. Have fun ;)
