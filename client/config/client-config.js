@@ -34,6 +34,7 @@ $('body').on('DOMNodeInserted', function(e) {
 	if (header[0] && !header.find('.chatpal-external-search-input')[0]) {
 
 		const searchcontainer = $('<div>').addClass('chatpal-external-search-input').appendTo(header);
+		const icon = $('<i>').addClass('icon-search');
 		const inputbox = $('<input>').attr('type', 'text').attr('placeholder', TAPi18n.__('CHATPAL_ENTER_SEARCH_STRING')).on('keydown', function(e) {
 
 			if (e.which != '13') {
@@ -55,6 +56,6 @@ $('body').on('DOMNodeInserted', function(e) {
 			}
 		});
 
-		searchcontainer.append(inputbox);
+		searchcontainer.append(icon).append(inputbox);
 	}
 });
