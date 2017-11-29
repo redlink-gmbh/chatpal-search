@@ -1,15 +1,5 @@
 RocketChat.TabBar.removeButton('message-search');
 
-RocketChat.TabBar.addButton({
-	groups: ['live', 'channel', 'privategroup', 'directmessage'],
-	id: 'ChatpalSearch',
-	i18nTitle: 'CHATPAL_SEARCH',
-	icon: 'magnifier',
-	template: 'ChatpalSearch',
-	order: 0,
-	initialOpen: true
-});
-
 TAPi18n.loadTranslations({
 	en:{
 		CHATPAL_ENTER_SEARCH_STRING: 'Enter search string',
@@ -38,3 +28,33 @@ TAPi18n.loadTranslations({
 		CHATPAL_SEARCH_GOTO_MESSAGE: 'Zur Nachricht'
 	}
 }, 'project');
+
+$('body').on('DOMNodeInserted', function(e) {
+	const header = $(e.target).find('#rocket-chat');
+	if (header[0] && !header.find('.chatpal-external-search-input')[0]) {
+
+		const searchcontainer = $('<div>').addClass('chatpal-external-search-input').appendTo(header);
+		const inputbox = $('<input>').attr('type', 'text').attr('placeholder', TAPi18n.__('CHATPAL_ENTER_SEARCH_STRING')).on('keydown', function(e) {
+
+			if (e.which != '13') {
+				return;
+			}
+
+			e.preventDefault();
+
+			let container = document.getElementById('chatpal-search-result-container');
+			if (!container) {
+				container = document.createElement('div');
+				container.id = 'chatpal-search-result-container';
+				Blaze.renderWithData(Template.ChatpalSearch, {searchTerm: inputbox.val()}, container);
+				document.body.appendChild(container);
+			} else {
+				container.innerHTML = '';
+				Blaze.renderWithData(Template.ChatpalSearch, {searchTerm: inputbox.val()}, container);
+				container.style.display = 'block';
+			}
+		});
+
+		searchcontainer.append(inputbox);
+	}
+});

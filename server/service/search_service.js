@@ -41,6 +41,7 @@ class ChatpalSearchService {
 	constructor(url) {
 		this.baseUrl = url;
 		this.backendUtils = SmartiBackendUtils;
+		//console.log('Init chatpal with url %s', url);
 	}
 
 	_getUserData(user_id) {
@@ -60,17 +61,22 @@ class ChatpalSearchService {
 
 	_getRoomData(room_id) {
 		const room = RocketChat.models.Rooms.findOneByIdOrName(room_id);
+
+		let type_symbol = '#';
+		let link_path = 'channel';
+
 		if (room) {
-			return {
-				name: room.name,
-				type_symbol: room.t === ('d') ? '@' : '#'
-			};
-		} else {
-			return {
-				name: room_id,
-				type_symbol: '#'
-			};
+			switch (room.t) {
+				case 'd': type_symbol = '@';break;
+				case 'r': type_symbol = '?';link_path = 'request';break;
+			}
 		}
+
+		return {
+			name: room ? room.name : room_id,
+			type_symbol,
+			link_path
+		};
 	}
 
 	_getDateStrings(date) {
@@ -155,6 +161,11 @@ class ChatpalSearchService {
 // =========================
 
 let chatpalSearchService = new ChatpalSearchService('');
+
+RocketChat.settings.get('CHATPAL_BASEURL', function(key, value) {
+	//if configuration is already set
+	chatpalSearchService = new ChatpalSearchService(value);
+});
 
 RocketChat.models.Settings.findById('CHATPAL_BASEURL').observeChanges({
 	added(n, v) {

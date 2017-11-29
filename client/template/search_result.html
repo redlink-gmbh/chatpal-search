@@ -1,9 +1,10 @@
 <template name="ChatpalSearch">
 	<div class="chatpal-search-container">
+		<button class="chatpal-search-container-close">
+			<i class="icon-cancel"></i>
+		</button>
+		<h1>Search Result</h1>
 		{{#if enabled}}
-		<div class="chatpal-search-input-container">
-			<input placeholder="{{_ "CHATPAL_ENTER_SEARCH_STRING"}}" type="text" class="chatpal-search-input">
-		</div>
 		<div class="chatpal-search-result">
 			{{#if loading}}
 				<div class="loading">
@@ -16,6 +17,7 @@
 					</div>
 				</div>
 			{{else}}
+			<div class="chatpal-search-result-inner">
 				<div class="chatpal-search-result-header">
 					<!--<div class="chatpal-search-channel-filter">
                         <select class="chatpal-search-channel-filter-selector">
@@ -58,6 +60,7 @@
 						</div>
 					{{/if}}
 				{{/if}}
+			</div>
 			{{/if}}
 		</div>
 		{{else}}
@@ -72,7 +75,7 @@
 	<div class="chatpal-search-result-single">
 		<h2>
 			<span class="chatpal-channel">{{room_data.type_symbol}}{{room_data.name}}</span>
-			<a class="chatpal-link" href="/channel/{{room_data.name}}?msg={{id}}">{{_ "CHATPAL_SEARCH_GOTO_MESSAGE"}}</a>
+			<a class="chatpal-link" href="/{{room_data.link_path}}/{{room_data.name}}?msg={{id}}">{{_ "CHATPAL_SEARCH_GOTO_MESSAGE"}}</a>
 			<span class="chatpal-date">{{date_strings.date}}</span>
 		</h2>
 		<div class="chatpal-avatar">

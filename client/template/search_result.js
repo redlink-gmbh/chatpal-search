@@ -1,27 +1,26 @@
 Template.ChatpalSearch.onCreated(function() {
-
-	this.text = '';
-
+	this.enabled = new ReactiveVar(true);
 	this.result = new ReactiveVar;
-
 	this.loading = new ReactiveVar(false);
+});
+
+Template.ChatpalSearch.onRendered(function() {
 
 	this.pageSize = RocketChat.settings.get('CHATPAL_PAGESIZE');
 
 	this.page = 1;
-
-	this.enabled = new ReactiveVar(true);
 
 	this.search = () => {
 
 		this.result.set(null);
 		this.loading.set(true);
 
-		Meteor.call('chatpal.search', this.text, this.page, this.pageSize, [], (err, res) => {
+		Meteor.call('chatpal.search', this.data.searchTerm, this.page, this.pageSize, [], (err, res) => {
 			$('.flex-tab__content').scrollTop(0);
 			this.loading.set(false);
 			if (err) {
-				console.log(err);
+				console.log('ping failed');
+				this.enabled.set(false);
 			} else {
 				this.result.set(res);
 			}
@@ -40,12 +39,7 @@ Template.ChatpalSearch.onCreated(function() {
 		});
 	};
 
-	this.ping();
-
-});
-
-Template.ChatpalSearch.onRendered(function() {
-	console.log('rendered');
+	this.search();
 });
 
 Template.ChatpalSearch.onDestroyed(function() {
@@ -53,12 +47,8 @@ Template.ChatpalSearch.onDestroyed(function() {
 });
 
 Template.ChatpalSearch.events = {
-	'keypress input.chatpal-search-input'(evt, t) {
-		if (evt.which === 13) {
-			t.text = evt.currentTarget.value;
-			t.page = 1;
-			t.search();
-		}
+	'click .chatpal-search-container-close'() {
+		$('#chatpal-search-result-container').css('display', 'none');
 	},
 	'click .chatpal-paging-prev'(env, t) {
 		t.page -= 1;

@@ -1,9 +1,50 @@
+#chatpal-search-result-container {
+	width: 400px;
+	position: absolute;
+	top: 61px;
+	right: 0px;
+	background-color: white;
+	border-left: 1px solid #efefef;
+}
+
+.chatpal-external-search-input {
+	position: absolute;
+	top: 12px;
+	right: 40px;
+	z-index: 1000;
+	display: block;
+}
+
+.chatpal-search-container-close {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	font-size: 20px;
+	color: #ccc;
+	cursor: pointer;
+}
+
+.chatpal-external-search-input input {
+	width: 330px;
+	padding: 9px 10px;
+	border: 1px solid #eee;
+	border-radius: 5px;
+	font-size: 14px;
+	background-color: white;
+}
+
 .chatpal-search-container {
 	position: relative;
 	display: flex;
 	flex-direction:column;
 	overflow:hidden;
-	top: -20px;
+}
+
+
+.chatpal-search-container h1 {
+	padding: 20px 10px;
+	font-size: 18px;
+	border-bottom: 1px solid #eee;
 }
 
 .chatpal-search-input {
@@ -12,8 +53,14 @@
 }
 
 .chatpal-search-result{
-	overflow:auto;
+	overflow:scroll;
 	flex:1 1 auto;
+	height: calc(100vh - 80px);
+	background-color: #f1f1f1;
+}
+
+.chatpal-search-result-inner {
+	padding: 0 10px;
 }
 
 .chatpal-search-input-container {
