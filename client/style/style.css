@@ -1,5 +1,5 @@
 #chatpal-search-result-container {
-	max-width: 450px;
+	width: 450px;
 	position: absolute;
 	top: 61px;
 	right: 0px;
@@ -236,4 +236,10 @@
 		  -webkit-transform: scale(1.0);
 		  transform: scale(1.0);
 	  }
+}
+
+@media screen and (max-width: 450px){
+	#chatpal-search-result-container {
+		width: 400px;
+	}
 }
