@@ -1,9 +1,15 @@
 <template name="ChatpalSearch">
-	<div class="chatpal-search-container">
+	<div class="chatpal-external-search-input">
+		<i class="icon-search"></i>
+		<input type="text" class="chatpal-external-search-input-in" placeholder="{{_ "CHATPAL_ENTER_SEARCH_STRING"}}">
+	</div>
+	{{#if showResults}}
+		<div id="chatpal-search-result-container">
+			<div class="chatpal-search-container">
 		<button class="chatpal-search-container-close">
 			<i class="icon-cancel"></i>
 		</button>
-		<h1>Search Result</h1>
+		<h1>{{_ "CHATPAL_SEARCH_RESULTS_TITLE"}}</h1>
 		{{#if enabled}}
 		<div class="chatpal-search-result">
 			{{#if loading}}
@@ -69,6 +75,8 @@
 			</div>
 		{{/if}}
 	</div>
+		</div>
+	{{/if}}
 </template>
 
 <template name="ChatpalSearchSingleMessage">

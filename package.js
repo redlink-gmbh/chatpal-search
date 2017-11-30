@@ -18,8 +18,8 @@ Package.onUse(function(api) {
 	api.addFiles([
 		'client/config/client-config.js',
 		'client/style/style.css',
-		'client/template/search_result.html',
-		'client/template/search_result.js'
+		'client/template/search.html',
+		'client/template/search.js'
 	], 'client');
 
 	api.addFiles(['server/config/config.js',

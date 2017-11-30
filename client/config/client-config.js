@@ -4,6 +4,7 @@ TAPi18n.loadTranslations({
 	en:{
 		CHATPAL_ENTER_SEARCH_STRING: 'Enter search string',
 		CHATPAL_SEARCH: 'Chatpal Search',
+		CHATPAL_SEARCH_RESULTS_TITLE: 'Search Results',
 		CHATPAL_BASEURL: 'Search Service URL',
 		CHATPAL_PAGESIZE: 'Pagesize',
 		CHATPAL_DATE_FORMAT: 'Date format (e.g MMM Do)',
@@ -17,6 +18,7 @@ TAPi18n.loadTranslations({
 	de:{
 		CHATPAL_ENTER_SEARCH_STRING: 'Suchbegriff eingeben',
 		CHATPAL_SEARCH: 'Chatpal Suche',
+		CHATPAL_SEARCH_RESULTS_TITLE: 'Suchergebnisse',
 		CHATPAL_BASEURL: 'URL des Suchservice',
 		CHATPAL_PAGESIZE: 'Seitengröße',
 		CHATPAL_DATE_FORMAT: 'Datumsformat (e.g MMM Do)',
@@ -30,32 +32,12 @@ TAPi18n.loadTranslations({
 }, 'project');
 
 $('body').on('DOMNodeInserted', function(e) {
-	const header = $(e.target).find('#rocket-chat');
-	if (header[0] && !header.find('.chatpal-external-search-input')[0]) {
+	const rc = $(e.target).find('#rocket-chat');
+	if (rc[0] && !rc.find('.chatpal-external-search-input')[0]) {
 
-		const searchcontainer = $('<div>').addClass('chatpal-external-search-input').appendTo(header);
-		const icon = $('<i>').addClass('icon-search');
-		const inputbox = $('<input>').attr('type', 'text').attr('placeholder', TAPi18n.__('CHATPAL_ENTER_SEARCH_STRING')).on('keydown', function(e) {
+		const container = $('<div>').attr('id', 'chatpal-external-search').appendTo(rc);
 
-			if (e.which != '13') {
-				return;
-			}
-
-			e.preventDefault();
-
-			let container = document.getElementById('chatpal-search-result-container');
-			if (!container) {
-				container = document.createElement('div');
-				container.id = 'chatpal-search-result-container';
-				Blaze.renderWithData(Template.ChatpalSearch, {searchTerm: inputbox.val()}, container);
-				document.body.appendChild(container);
-			} else {
-				container.innerHTML = '';
-				Blaze.renderWithData(Template.ChatpalSearch, {searchTerm: inputbox.val()}, container);
-				container.style.display = 'block';
-			}
-		});
-
-		searchcontainer.append(icon).append(inputbox);
+		//render input field
+		Blaze.renderWithData(Template.ChatpalSearch, {}, container[0]);
 	}
 });
