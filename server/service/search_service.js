@@ -155,6 +155,10 @@ class ChatpalSearchService {
 		this._pingAsync(bound_callback);
 		return fut.wait();
 	}
+
+	stop() {
+		SystemLogger.info('Chatpal Service stopped');
+	}
 }
 
 // Reload on settings change
@@ -163,18 +167,24 @@ class ChatpalSearchService {
 let chatpalSearchService = new ChatpalSearchService('');
 
 RocketChat.settings.get('CHATPAL_BASEURL', function(key, value) {
-	//if configuration is already set
+	SystemLogger.info(`Initialize Chatpal Service with url ${ value }`);
 	chatpalSearchService = new ChatpalSearchService(value);
 });
 
 RocketChat.models.Settings.findById('CHATPAL_BASEURL').observeChanges({
 	added(n, v) {
+		SystemLogger.info(`Initialize Chatpal Service with url ${ v }`);
+		if (chatpalSearchService) { chatpalSearchService.stop(); }
 		chatpalSearchService = new ChatpalSearchService(v.value);
 	},
 	changed(n, v) {
+		SystemLogger.info(`Re-Initialize Chatpal Service with url ${ v }`);
+		if (chatpalSearchService) { chatpalSearchService.stop(); }
 		chatpalSearchService = new ChatpalSearchService(v.value);
 	},
 	removed() {
+		SystemLogger.info('Revert Chatpal Service');
+		if (chatpalSearchService) { chatpalSearchService.stop(); }
 		chatpalSearchService = new ChatpalSearchService('');
 	}
 });

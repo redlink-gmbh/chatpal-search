@@ -40,4 +40,11 @@ $('body').on('DOMNodeInserted', function(e) {
 		//render input field
 		Blaze.renderWithData(Template.ChatpalSearch, {}, container[0]);
 	}
+	/**
+	 *
+	 * (function() {
+	var old = jQuery.fn.addClass;
+	jQuery.fn.addClass = function(){old.apply(this,arguments);console.log($(this)[0],arguments)}
+})();
+	 */
 });
