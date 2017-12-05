@@ -157,7 +157,7 @@ class ChatpalSearchService {
 	}
 
 	stop() {
-		SystemLogger.info('Chatpal Service stopped');
+		//SystemLogger.info('Chatpal Service stopped');
 	}
 }
 
@@ -166,24 +166,21 @@ class ChatpalSearchService {
 
 let chatpalSearchService = new ChatpalSearchService('');
 
-RocketChat.settings.get('CHATPAL_BASEURL', function(key, value) {
-	SystemLogger.info(`Initialize Chatpal Service with url ${ value }`);
-	chatpalSearchService = new ChatpalSearchService(value);
-});
-
 RocketChat.models.Settings.findById('CHATPAL_BASEURL').observeChanges({
 	added(n, v) {
-		SystemLogger.info(`Initialize Chatpal Service with url ${ v }`);
+		console.log(`Initialize Chatpal Service with url ${ v.value }`);
 		if (chatpalSearchService) { chatpalSearchService.stop(); }
 		chatpalSearchService = new ChatpalSearchService(v.value);
 	},
 	changed(n, v) {
-		SystemLogger.info(`Re-Initialize Chatpal Service with url ${ v }`);
+		//TODO is this a bug
+		if (!v.value) { return; }
+		console.log(`Re-Initialize Chatpal Service with url ${ v.value }`);
 		if (chatpalSearchService) { chatpalSearchService.stop(); }
 		chatpalSearchService = new ChatpalSearchService(v.value);
 	},
 	removed() {
-		SystemLogger.info('Revert Chatpal Service');
+		console.log('Stop Chatpal Service');
 		if (chatpalSearchService) { chatpalSearchService.stop(); }
 		chatpalSearchService = new ChatpalSearchService('');
 	}
