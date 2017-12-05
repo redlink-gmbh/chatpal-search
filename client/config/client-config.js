@@ -31,20 +31,27 @@ TAPi18n.loadTranslations({
 	}
 }, 'project');
 
+/*function chatpal__onAddClass(c, cb) {
+	const old = jQuery.fn.addClass;
+	jQuery.fn.addClass = function() { if ($(this).hasClass(c)) { cb(); }old.apply(this, arguments); };
+}
+
+function chatpal__onRemoveClass(c, cb) {
+	const old = jQuery.fn.removeClass;
+	jQuery.fn.removeClass = function() { if ($(this).hasClass(c)) { cb(); }old.apply(this, arguments); };
+}*/
+
 $('body').on('DOMNodeInserted', function(e) {
 	const rc = $(e.target).find('#rocket-chat');
 	if (rc[0] && !rc.find('.chatpal-external-search-input')[0]) {
 
 		const container = $('<div>').attr('id', 'chatpal-external-search').appendTo(rc);
 
+		//chatpal__onAddClass('flex-nav', function() { container.show(); });
+		//chatpal__onRemoveClass('flex-nav', function() { container.hide(); });
+
 		//render input field
 		Blaze.renderWithData(Template.ChatpalSearch, {}, container[0]);
 	}
-	/**
-	 *
-	 * (function() {
-	var old = jQuery.fn.addClass;
-	jQuery.fn.addClass = function(){old.apply(this,arguments);console.log($(this)[0],arguments)}
-})();
-	 */
+
 });
