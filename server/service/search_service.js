@@ -89,9 +89,17 @@ class ChatpalSearchService {
 
 	_searchAsync(text, page, pagesize, filters, callback) {
 
-		const self = this;
+		const self = this,
+			headers = {},
+			extraHeader = RocketChat.settings.get('CHATPAL_EXTRA_HEADER');
+		if (extraHeader && extraHeader !== '') {
+			const kv = extraHeader.split(/\s*:\s*/, 2);
+			headers[kv[0]] = kv[1];
+		}
 
-		HTTP.call('GET', this.baseUrl + SmartiBackendUtils.getQueryParameterString(text, page, pagesize, filters), {}, (err, data) => {
+		HTTP.call('GET', this.baseUrl + SmartiBackendUtils.getQueryParameterString(text, page, pagesize, filters), {
+			headers: headers
+		}, (err, data) => {
 			if (err) {
 				callback(err);
 			} else if (data.statusCode === 200) {

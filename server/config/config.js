@@ -13,6 +13,12 @@ Meteor.startup(() => {
 				i18nLabel: 'CHATPAL_PAGESIZE'
 			});
 
+			this.add('CHATPAL_EXTRA_HEADER', '', {
+				type: 'string',
+				public: true,
+				i18nLabel: 'CHATPAL_EXTRA_HEADER'
+			});
+
 			this.add('CHATPAL_TIME_FORMAT', 'H:mm A', {
 				type: 'string',
 				public: true,
