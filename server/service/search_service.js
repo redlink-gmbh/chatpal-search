@@ -1,4 +1,6 @@
 /* globals SystemLogger */
+import {Chatpal} from '../config/config';
+
 const Future = Npm.require('fibers/future');
 const moment = Npm.require('moment');
 
@@ -30,6 +32,10 @@ class SmartiBackendUtils {
 		};
 	}
 
+	static bootstrap() {
+		console.log('no bootstrap required for smarti backend');
+	}
+
 }
 
 /**
@@ -38,10 +44,19 @@ class SmartiBackendUtils {
  */
 class ChatpalSearchService {
 
-	constructor(url) {
-		this.baseUrl = url;
+	constructor() {
 		this.backendUtils = SmartiBackendUtils;
-		//console.log('Init chatpal with url %s', url);
+	}
+
+	setBaseUrl(url) {
+		this.baseUrl = url;
+		this._pingAsync((err) => {
+			if (err) { console.log(`cannot ping url ${ url }`); } else { this._bootstrapIndex(); }
+		});
+	}
+
+	_bootstrapIndex() {
+		this.backendUtils.bootstrap();
 	}
 
 	_getUserData(user_id) {
@@ -91,7 +106,7 @@ class ChatpalSearchService {
 
 		const self = this;
 
-		HTTP.call('GET', this.baseUrl + SmartiBackendUtils.getQueryParameterString(text, page, pagesize, filters), {}, (err, data) => {
+		HTTP.call('GET', this.baseUrl + this.backendUtils.getQueryParameterString(text, page, pagesize, filters), {}, (err, data) => {
 			if (err) {
 				callback(err);
 			} else if (data.statusCode === 200) {
@@ -164,25 +179,22 @@ class ChatpalSearchService {
 // Reload on settings change
 // =========================
 
-let chatpalSearchService = new ChatpalSearchService('');
+Chatpal.service.SearchService = new ChatpalSearchService();
 
 RocketChat.models.Settings.findById('CHATPAL_BASEURL').observeChanges({
 	added(n, v) {
 		console.log(`Initialize Chatpal Service with url ${ v.value }`);
-		if (chatpalSearchService) { chatpalSearchService.stop(); }
-		chatpalSearchService = new ChatpalSearchService(v.value);
+		Chatpal.service.SearchService.setBaseUrl(v.value);
 	},
 	changed(n, v) {
 		//TODO is this a bug
 		if (!v.value) { return; }
 		console.log(`Re-Initialize Chatpal Service with url ${ v.value }`);
-		if (chatpalSearchService) { chatpalSearchService.stop(); }
-		chatpalSearchService = new ChatpalSearchService(v.value);
+		Chatpal.service.SearchService.setBaseUrl(v.value);
 	},
 	removed() {
 		console.log('Stop Chatpal Service');
-		if (chatpalSearchService) { chatpalSearchService.stop(); }
-		chatpalSearchService = new ChatpalSearchService('');
+		Chatpal.service.SearchService.setBaseUrl('');
 	}
 });
 
@@ -192,12 +204,12 @@ RocketChat.models.Settings.findById('CHATPAL_BASEURL').observeChanges({
  */
 Meteor.methods({
 	'chatpal.search'(text, page, pagesize, filters) {
-		return chatpalSearchService.search(text, page, pagesize, filters);
+		return Chatpal.service.SearchService.search(text, page, pagesize, filters);
 	}
 });
 
 Meteor.methods({
 	'chatpal.ping'() {
-		return chatpalSearchService.ping();
+		return Chatpal.service.SearchService.ping();
 	}
 });
