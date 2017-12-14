@@ -7,16 +7,16 @@ Meteor.startup(() => {
 				i18nLabel: 'CHATPAL_BASEURL'
 			});
 
+			this.add('CHATPAL_AUTH_TOKEN', '', {
+				type: 'string',
+				public: true,
+				i18nLabel: 'CHATPAL_AUTH_TOKEN'
+			});
+
 			this.add('CHATPAL_PAGESIZE', 5, {
 				type: 'int',
 				public: true,
 				i18nLabel: 'CHATPAL_PAGESIZE'
-			});
-
-			this.add('CHATPAL_EXTRA_HEADER', '', {
-				type: 'string',
-				public: true,
-				i18nLabel: 'CHATPAL_EXTRA_HEADER'
 			});
 
 			this.add('CHATPAL_TIME_FORMAT', 'H:mm A', {
@@ -74,6 +74,6 @@ Meteor.startup(() => {
 });
 
 export const Chatpal = {
-	models : {},
+	models: {},
 	service: {}
 };
