@@ -140,6 +140,12 @@ class ChatpalSearchService {
 		if (authToken) {
 			options.headers = {'X-Auth-Token': authToken};
 		}
+
+		const basicAuth = RocketChat.settings.get('CHATPAL_BASIC_AUTH');
+		if (basicAuth) {
+			options.auth = basicAuth;
+		}
+
 		return options;
 	}
 

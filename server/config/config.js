@@ -12,6 +12,11 @@ Meteor.startup(() => {
 				public: true,
 				i18nLabel: 'CHATPAL_AUTH_TOKEN'
 			});
+			this.add('CHATPAL_BASIC_AUTH', '', {
+				type: 'string',
+				public: true,
+				i18nLabel: 'CHATPAL_BASIC_AUTH'
+			});
 
 			this.add('CHATPAL_PAGESIZE', 5, {
 				type: 'int',
