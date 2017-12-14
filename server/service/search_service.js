@@ -114,11 +114,10 @@ class ChatpalSearchService {
 
 	_searchAsync(text, page, pagesize, filters, callback) {
 
-		const self = this,
-			headers = this._buildExtraHeaders();
+		const self = this;
 
 		HTTP.call('GET', this.baseUrl + this.backendUtils.getQueryParameterString(text, page, pagesize, filters), {
-			headers: headers
+			headers: this._buildExtraHeaders()
 		}, (err, data) => {
 			if (err) {
 				callback(err);
