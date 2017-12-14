@@ -1,14 +1,14 @@
 RocketChat.TabBar.removeButton('message-search');
 
 TAPi18n.loadTranslations({
-	en:{
+	en: {
 		CHATPAL_ENTER_SEARCH_STRING: 'Enter search string',
 		CHATPAL_SEARCH: 'Chatpal Search',
 		CHATPAL_BOT: 'Chatpal Bots',
 		CHATPAL_SEARCH_RESULTS_TITLE: 'Search Results',
 		CHATPAL_BASEURL: 'Search Service URL',
-        CHATPAL_AUTH_TOKEN: 'Auth-Token',
-        CHATPAL_BOT_BASEURL: 'Bot Service URL',
+		CHATPAL_AUTH_TOKEN: 'Auth-Token',
+		CHATPAL_BOT_BASEURL: 'Bot Service URL',
 		CHATPAL_PAGESIZE: 'Pagesize',
 		CHATPAL_DATE_FORMAT: 'Date format (e.g MMM Do)',
 		CHATPAL_TIME_FORMAT: 'Time format (e.g H:mm A)',
@@ -18,13 +18,13 @@ TAPi18n.loadTranslations({
 		CHATPAL_SEARCH_PAGE_OF: 'PAGE %s OF %s',
 		CHATPAL_SEARCH_GOTO_MESSAGE: 'Go to message'
 	},
-	de:{
+	de: {
 		CHATPAL_ENTER_SEARCH_STRING: 'Suchbegriff eingeben',
 		CHATPAL_SEARCH: 'Chatpal Suche',
 		CHATPAL_BOT: 'Chatpal Bots',
 		CHATPAL_SEARCH_RESULTS_TITLE: 'Suchergebnisse',
 		CHATPAL_BASEURL: 'URL des Suchservice',
-        CHATPAL_AUTH_TOKEN: 'Auth-Token',
+		CHATPAL_AUTH_TOKEN: 'Auth-Token',
 		CHATPAL_BOT_BASEURL: 'URL des Botservice',
 		CHATPAL_PAGESIZE: 'Seitengröße',
 		CHATPAL_DATE_FORMAT: 'Datumsformat (e.g MMM Do)',

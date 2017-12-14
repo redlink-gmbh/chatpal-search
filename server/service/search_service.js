@@ -7,7 +7,7 @@ const moment = Npm.require('moment');
 class SmartiBackendUtils {
 
 	static getQueryParameterString(text, page, pagesize, filters) {
-		return `?sort=time%20desc&fl=id,message_id,meta_channel_id,user_id,time,message,type&hl=true&hl.fl=message&df=message&q=${ encodeURIComponent(text) }&start=${ (page-1)*pagesize }&rows=${ pagesize }`;
+		return `?sort=time%20desc&fl=id,message_id,meta_channel_id,user_id,time,message,type&hl=true&hl.fl=message&df=message&q=${ encodeURIComponent(text) }&start=${ (page - 1) * pagesize }&rows=${ pagesize }`;
 	}
 
 	static alignResponse(result) {
@@ -51,7 +51,11 @@ class ChatpalSearchService {
 	setBaseUrl(url) {
 		this.baseUrl = url;
 		this._pingAsync((err) => {
-			if (err) { console.log(`cannot ping url ${ url }`); } else { this._bootstrapIndex(); }
+			if (err) {
+				console.log(`cannot ping url ${ url }`);
+			} else {
+				this._bootstrapIndex();
+			}
 		});
 	}
 
@@ -82,8 +86,13 @@ class ChatpalSearchService {
 
 		if (room) {
 			switch (room.t) {
-				case 'd': type_symbol = '@';break;
-				case 'r': type_symbol = '?';link_path = 'request';break;
+				case 'd':
+					type_symbol = '@';
+					break;
+				case 'r':
+					type_symbol = '?';
+					link_path = 'request';
+					break;
 			}
 		}
 
@@ -106,19 +115,12 @@ class ChatpalSearchService {
 
 		const self = this;
 
-		const options = {};
-
-		const authToken = RocketChat.settings.get('CHATPAL_AUTH_TOKEN');
-		if(authToken){
-			options.headers = {'X-Auth-Token':authToken}
-		}
-
-		HTTP.call('GET', this.baseUrl + this.backendUtils.getQueryParameterString(text, page, pagesize, filters), options, (err, data) => {
+		HTTP.call('GET', this.baseUrl + this.backendUtils.getQueryParameterString(text, page, pagesize, filters), ChatpalSearchService._httpOptions, (err, data) => {
 			if (err) {
 				callback(err);
 			} else if (data.statusCode === 200) {
 				const result = this.backendUtils.alignResponse(JSON.parse(data.content));
-
+				SystemLogger.debug(JSON.stringify(data, '', 2));
 				result.docs.forEach(function(doc) {
 					doc.user_data = self._getUserData(doc.user);
 					doc.date_strings = self._getDateStrings(doc.date);
@@ -131,9 +133,19 @@ class ChatpalSearchService {
 		});
 	}
 
+	static get _httpOptions() {
+		const options = {};
+
+		const authToken = RocketChat.settings.get('CHATPAL_AUTH_TOKEN');
+		if (authToken) {
+			options.headers = {'X-Auth-Token': authToken};
+		}
+		return options;
+	}
+
 	_pingAsync(callback) {
 
-		HTTP.call('GET', `${ this.baseUrl }?q=*:*&rows=0`, {}, (err, data) => {
+		HTTP.call('GET', `${ this.baseUrl }?q=*:*&rows=0`, ChatpalSearchService._httpOptions, (err, data) => {
 			if (err) {
 				callback(err);
 			} else if (data.statusCode === 200) {
@@ -195,7 +207,9 @@ RocketChat.models.Settings.findById('CHATPAL_BASEURL').observeChanges({
 	},
 	changed(n, v) {
 		//TODO is this a bug
-		if (!v.value) { return; }
+		if (!v.value) {
+			return;
+		}
 		console.log(`Re-Initialize Chatpal Service with url ${ v.value }`);
 		Chatpal.service.SearchService.setBaseUrl(v.value);
 	},
