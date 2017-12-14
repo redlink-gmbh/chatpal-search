@@ -4,18 +4,21 @@ Meteor.startup(() => {
 			this.add('CHATPAL_BASEURL', '', {
 				type: 'string',
 				public: true,
-				i18nLabel: 'CHATPAL_BASEURL'
+				i18nLabel: 'CHATPAL_BASEURL',
+        i18nDescription: 'CHATPAL_BASEURL_DESCRIPTION'
 			});
 
 			this.add('CHATPAL_AUTH_TOKEN', '', {
 				type: 'string',
 				public: true,
-				i18nLabel: 'CHATPAL_AUTH_TOKEN'
+				i18nLabel: 'CHATPAL_AUTH_TOKEN',
+        i18nDescription: 'CHATPAL_AUTH_TOKEN_DESCRIPTION'
 			});
 			this.add('CHATPAL_BASIC_AUTH', '', {
 				type: 'string',
 				public: true,
-				i18nLabel: 'CHATPAL_BASIC_AUTH'
+				i18nLabel: 'CHATPAL_BASIC_AUTH',
+        i18nDescription: 'CHATPAL_BASIC_AUTH_DESCRIPTION'
 			});
 
 			this.add('CHATPAL_PAGESIZE', 5, {
