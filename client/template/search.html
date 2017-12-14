@@ -1,7 +1,7 @@
 <template name="ChatpalSearch">
 	<div class="chatpal-external-search-input">
 		<i class="icon-search"></i>
-		<input type="text" class="chatpal-external-search-input-in" placeholder="{{_ "CHATPAL_ENTER_SEARCH_STRING"}}">
+		<input type="text" class="chatpal-external-search-input-in" placeholder='{{_ "CHATPAL_ENTER_SEARCH_STRING"}}'>
 	</div>
 	{{#if showResults}}
 		<div id="chatpal-search-result-container">
@@ -82,7 +82,7 @@
 <template name="ChatpalSearchSingleMessage">
 	<div class="chatpal-search-result-single">
 		<h2>
-			<span class="chatpal-channel">{{room_data.type_symbol}}{{room_data.name}}</span>
+			<span class="chatpal-channel">{{room_data.type_symbol}} {{room_data.name}}</span>
 			<a class="chatpal-link" href="/{{room_data.link_path}}/{{room_data.name}}?msg={{id}}">{{_ "CHATPAL_SEARCH_GOTO_MESSAGE"}}</a>
 			<span class="chatpal-date">{{date_strings.date}}</span>
 		</h2>

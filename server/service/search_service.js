@@ -87,15 +87,20 @@ class ChatpalSearchService {
 		};
 	}
 
+	_buildExtraHeaders(headers) {
+		const hdrs = headers || {},
+      extraHeader = RocketChat.settings.get('CHATPAL_EXTRA_HEADER');
+    if (extraHeader && extraHeader !== '') {
+      const kv = extraHeader.split(/\s*:\s*/, 2);
+      hdrs[kv[0]] = kv[1];
+    }
+		return hdrs;
+	}
+
 	_searchAsync(text, page, pagesize, filters, callback) {
 
 		const self = this,
-			headers = {},
-			extraHeader = RocketChat.settings.get('CHATPAL_EXTRA_HEADER');
-		if (extraHeader && extraHeader !== '') {
-			const kv = extraHeader.split(/\s*:\s*/, 2);
-			headers[kv[0]] = kv[1];
-		}
+			headers = this._buildExtraHeaders();
 
 		HTTP.call('GET', this.baseUrl + SmartiBackendUtils.getQueryParameterString(text, page, pagesize, filters), {
 			headers: headers
@@ -119,7 +124,9 @@ class ChatpalSearchService {
 
 	_pingAsync(callback) {
 
-		HTTP.call('GET', `${ this.baseUrl }?q=*:*&rows=0`, {}, (err, data) => {
+		HTTP.call('GET', `${ this.baseUrl }?q=*:*&rows=0`, {
+			headers: this._buildExtraHeaders()
+		}, (err, data) => {
 			if (err) {
 				callback(err);
 			} else if (data.statusCode === 200) {
