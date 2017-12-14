@@ -1,2 +1,4 @@
 .npm
-.idea
+
+*.iml
+.idea/
