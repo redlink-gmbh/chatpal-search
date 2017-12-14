@@ -106,7 +106,14 @@ class ChatpalSearchService {
 
 		const self = this;
 
-		HTTP.call('GET', this.baseUrl + this.backendUtils.getQueryParameterString(text, page, pagesize, filters), {}, (err, data) => {
+		const options = {};
+
+		const authToken = RocketChat.settings.get('CHATPAL_AUTH_TOKEN');
+		if(authToken){
+			options.headers = {'X-Auth-Token':authToken}
+		}
+
+		HTTP.call('GET', this.baseUrl + this.backendUtils.getQueryParameterString(text, page, pagesize, filters), options, (err, data) => {
 			if (err) {
 				callback(err);
 			} else if (data.statusCode === 200) {
