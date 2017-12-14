@@ -1,8 +1,20 @@
 Template.ChatpalSearch.onCreated(function() {
+
+	this.pattern = new RegExp('^((create-channel)|(account)|(admin.*)|(mailer)|(emoji-custom)|(custom-sounds))$');
+
 	this.enabled = new ReactiveVar(true);
 	this.result = new ReactiveVar;
 	this.loading = new ReactiveVar(false);
 	this.showResults = new ReactiveVar(false);
+
+	this.autorun(() => {
+		const routeName = FlowRouter.getRouteName();
+		if (this.pattern.test(routeName)) {
+			$('#chatpal-external-search').hide();
+		} else {
+			$('#chatpal-external-search').show();
+		}
+	});
 });
 
 Template.ChatpalSearch.onRendered(function() {

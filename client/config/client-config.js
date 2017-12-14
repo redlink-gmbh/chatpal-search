@@ -4,8 +4,10 @@ TAPi18n.loadTranslations({
 	en:{
 		CHATPAL_ENTER_SEARCH_STRING: 'Enter search string',
 		CHATPAL_SEARCH: 'Chatpal Search',
+		CHATPAL_BOT: 'Chatpal Bots',
 		CHATPAL_SEARCH_RESULTS_TITLE: 'Search Results',
 		CHATPAL_BASEURL: 'Search Service URL',
+		CHATPAL_BOT_BASEURL: 'Bot Service URL',
 		CHATPAL_PAGESIZE: 'Pagesize',
     CHATPAL_EXTRA_HEADER: 'Extra Headers',
 		CHATPAL_DATE_FORMAT: 'Date format (e.g MMM Do)',
@@ -19,8 +21,10 @@ TAPi18n.loadTranslations({
 	de:{
 		CHATPAL_ENTER_SEARCH_STRING: 'Suchbegriff eingeben',
 		CHATPAL_SEARCH: 'Chatpal Suche',
+		CHATPAL_BOT: 'Chatpal Bots',
 		CHATPAL_SEARCH_RESULTS_TITLE: 'Suchergebnisse',
 		CHATPAL_BASEURL: 'URL des Suchservice',
+		CHATPAL_BOT_BASEURL: 'URL des Botservice',
 		CHATPAL_PAGESIZE: 'Seitengröße',
     CHATPAL_EXTRA_HEADER: 'Zusätzliche HTTP-Header',
 		CHATPAL_DATE_FORMAT: 'Datumsformat (e.g MMM Do)',
@@ -42,4 +46,5 @@ $('body').on('DOMNodeInserted', function(e) {
 		//render input field
 		Blaze.renderWithData(Template.ChatpalSearch, {}, container[0]);
 	}
+
 });
