@@ -206,23 +206,8 @@ class ChatpalSearchService {
 
 Chatpal.service.SearchService = new ChatpalSearchService();
 
-RocketChat.models.Settings.findById('CHATPAL_BASEURL').observeChanges({
-	added(n, v) {
-		console.log(`Initialize Chatpal Service with url ${ v.value }`);
-		Chatpal.service.SearchService.setBaseUrl(v.value);
-	},
-	changed(n, v) {
-		//TODO is this a bug
-		if (!v.value) {
-			return;
-		}
-		console.log(`Re-Initialize Chatpal Service with url ${ v.value }`);
-		Chatpal.service.SearchService.setBaseUrl(v.value);
-	},
-	removed() {
-		console.log('Stop Chatpal Service');
-		Chatpal.service.SearchService.setBaseUrl('');
-	}
+RocketChat.settings.get('CHATPAL_BASEURL', (id, value)=>{
+	Chatpal.service.SearchService.setBaseUrl(value);
 });
 
 /**
