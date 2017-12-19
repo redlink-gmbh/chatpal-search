@@ -6,7 +6,7 @@ const moment = Npm.require('moment');
 
 class SmartiBackendUtils {
 
-	static getQueryParameterString(text, page, pagesize, filters) {
+	static getQueryParameterString(text, page, pagesize/*, filters*/) {
 		return `?sort=time%20desc&fl=id,message_id,meta_channel_id,user_id,time,message,type&hl=true&hl.fl=message&df=message&q=${ encodeURIComponent(text) }&start=${ (page - 1) * pagesize }&rows=${ pagesize }`;
 	}
 
