@@ -39,6 +39,7 @@ Template.ChatpalSearch.onRendered(function() {
 				console.log('ping failed');
 				this.enabled.set(false);
 			} else {
+				this.enabled.set(true);
 				this.result.set(res);
 			}
 		});

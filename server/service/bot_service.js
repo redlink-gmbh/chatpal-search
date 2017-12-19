@@ -109,21 +109,8 @@ class ChatpalBotService {
 
 Chatpal.service.BotService = new ChatpalBotService();
 
-RocketChat.models.Settings.findById('CHATPAL_BOT_BASEURL').observeChanges({
-	added(n, v) {
-		console.log(`Initialize Chatpal Bot Service with url ${ v.value }`);
-		Chatpal.service.BotService .setBaseUrl(v.value);
-	},
-	changed(n, v) {
-		//TODO is this a bug
-		if (!v.value) { return; }
-		console.log(`Re-Initialize Chatpal Bot Service with url ${ v.value }`);
-		Chatpal.service.BotService .setBaseUrl(v.value);
-	},
-	removed() {
-		console.log('Stop Chatpal Bot Service');
-		Chatpal.service.BotService .setBaseUrl(undefined);
-	}
+RocketChat.settings.get('CHATPAL_BOT_BASEURL', (id, value)=>{
+	Chatpal.service.BotService.setBaseUrl(value);
 });
 
 RocketChat.callbacks.add('afterSaveMessage', function(message, room) {
