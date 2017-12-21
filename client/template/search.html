@@ -82,12 +82,14 @@
 <template name="ChatpalSearchSingleMessage">
 	<div class="chatpal-search-result-single">
 		<h2>
-			<span class="chatpal-channel">{{room_data.type_symbol}}{{room_data.name}}</span>
-			<a class="chatpal-link" href="/{{room_data.link_path}}/{{room_data.name}}?msg={{id}}">{{_ "CHATPAL_SEARCH_GOTO_MESSAGE"}}</a>
+			<span class="chatpal-channel">
+				{{> icon icon=(roomIcon subscription)}}
+				{{roomName subscription}}</span>
+			<a class="chatpal-link" href="{{roomLink subscription}}?msg={{id}}">{{_ "CHATPAL_SEARCH_GOTO_MESSAGE"}}</a>
 			<span class="chatpal-date">{{date_strings.date}}</span>
 		</h2>
 		<div class="chatpal-avatar">
-			<div class="chatpal-avatar-image" style="background-image:url(/avatar/{{user_data.username}}?_dc=undefined);"></div>
+			{{> avatar username=user_data.username}}
 		</div>
 		<span class="chatpal-name">{{user_data.name}}</span>
 		<span class="chatpal-time">{{date_strings.time}}</span>

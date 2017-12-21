@@ -119,3 +119,17 @@ Template.ChatpalSearch.helpers({
 		return Template.instance().showResults.get();
 	}
 });
+
+Template.ChatpalSearchSingleMessage.helpers({
+	roomName(subscription) {
+		return subscription.name;
+	},
+
+	roomIcon(subscription) {console.log(RocketChat.roomTypes);
+		return RocketChat.roomTypes.getIcon(subscription.t) || 'at'; //TODO fix
+	},
+
+	roomLink(subscription) {
+		return RocketChat.roomTypes.getRouteLink(subscription.t, subscription);
+	}
+});

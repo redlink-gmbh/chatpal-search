@@ -132,15 +132,11 @@ RocketChat.callbacks.add('afterSaveMessage', function(message, room) {
 		if (current) {
 			Chatpal.service.BotService.sendMessage(current, message.u, message.msg, room);
 		} else {
-
-
-
 			RocketChat.sendMessage(
 				Chatpal.service.BotService.getBotUser(),
-				{msg:'Sorry, das kann ich nicht'},
+				{msg:'Sorry, currently I am pretty dump. This will change in the future!'},
 				room
 			);
 		}
-
 	}
 });

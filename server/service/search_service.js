@@ -1,16 +1,18 @@
 /* globals SystemLogger */
+/* globals ChatSubscription */
 import {Chatpal} from '../config/config';
+import {Mongo} from 'meteor/mongo';
 
 const Future = Npm.require('fibers/future');
 const moment = Npm.require('moment');
 
-class SmartiBackendUtils {
+class SmartiBackend {
 
-	static getQueryParameterString(text, page, pagesize, filters) {
+	getQueryParameterString(text, page, pagesize, filters) {
 		return `?sort=time%20desc&fl=id,message_id,meta_channel_id,user_id,time,message,type&hl=true&hl.fl=message&df=message&q=${ encodeURIComponent(text) }&start=${ (page-1)*pagesize }&rows=${ pagesize }`;
 	}
 
-	static alignResponse(result) {
+	alignResponse(result) {
 		const docs = [];
 		result.response.forEach(function(doc) {
 			docs.push({
@@ -32,8 +34,160 @@ class SmartiBackendUtils {
 		};
 	}
 
-	static bootstrap() {
+	bootstrap() {
 		console.log('no bootstrap required for smarti backend');
+	}
+
+	index() {
+		//nothing to do
+	}
+
+	setBaseUrl(url) {
+		this.baseUrl = url;
+	}
+
+	getBaseUrl() {
+		return this.baseUrl;
+	}
+}
+
+class ChatpalBackend {
+
+	constructor() {
+		this.gap = 86400000; //one day
+		this._index_log = new Mongo.Collection('chatpal_search_indexlog');
+		this._messages = RocketChat.models.Messages.model;
+		this._rooms = RocketChat.models.Rooms.model;
+	}
+
+	_getAccessFiler(user) {
+		const rooms = RocketChat.models.Subscriptions.find({'u._id': user._id}).fetch();
+		return rooms.length > 0 ? `&fq=room:(${ rooms.map(room => room.rid).join(' OR ') })` : '';
+	}
+
+	getQueryParameterString(text, page, pagesize, filters) {
+		//console.log(`?q=${ encodeURIComponent(text) }&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`);
+		return `?q=${ encodeURIComponent(text) }&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
+	}
+
+	alignResponse(result) {
+		const res = result.response;
+		res.docs.forEach(function(doc) {
+			if (result.highlighting && result.highlighting[doc.id]) {
+				doc.highlight_text = result.highlighting[doc.id].text[0];
+			} else {
+				doc.highlight_text = doc.text;
+			}
+		});
+		return res;
+	}
+
+	_listMessages(room, start_date, end_date, start, rows) {
+		return this._messages.find({rid:room, ts:{$gt: new Date(start_date), $lt: new Date(end_date)}}, {skip:start, limit:rows}).fetch();
+	}
+
+	_existsDataOlderThan(date) {
+		return this._messages.find({_updatedAt:{$lt: new Date(date)}}, {limit:1}).fetch().length > 0;
+	}
+
+	_index(last_date) {
+
+		const report = {
+			last_date: last_date - this.gap,
+			number: 0
+		};
+
+		const rooms = this._rooms.find({ts:{$lt: new Date(last_date), $gt: new Date(report.last_date)}}).fetch();
+
+		rooms.forEach((room) => {
+			let hasNext = true;
+			const step = 10;
+			const rows = step;
+			let start = 0;
+			while (hasNext) {
+				const messages = this._listMessages(room._id, report.last_date, last_date, start, rows);
+
+				const solrDocs = [];
+
+				if (messages.length > 0) {
+
+					messages.forEach(function(m) {
+						solrDocs.push({
+							id: m._id,
+							room: m.rid,
+							text: m.msg,
+							user: m.u._id,
+							date: m._updatedAt
+						});
+					});
+
+					const result = HTTP.call('POST', `${ this.baseUrl }update/json/docs?commitWithin=1000`, {data:solrDocs});
+
+					report.number += messages.length;
+
+					start += step;
+				} else {
+					hasNext = false;
+				}
+
+			}
+		});
+
+		return report;
+	}
+
+	bootstrap() {
+
+		const report = this._index_log.find({}, {limit:1, sort:{last_date:-1}}).fetch();
+
+		let last_date = new Date().valueOf();
+
+		if (report && report.length !== 0) {
+			last_date = new Date(report[0].last_date).valueOf();
+		}
+
+		console.log(`exists older data than: ${ last_date }? ${ this._existsDataOlderThan(last_date) }`);
+
+		while (this._existsDataOlderThan(last_date)) {
+
+			const report = this._index(last_date);
+
+			this._index_log.insert(report);
+
+			//delay();
+			last_date = report.last_date;
+		}
+	}
+
+	index(m) {
+		const result = HTTP.call('POST', `${ this.baseUrl }update/json/docs?commitWithin=1000`, {data:{
+			id: m._id,
+			room: m.rid,
+			text: m.msg,
+			user: m.u._id,
+			date: m._updatedAt
+		}});
+	}
+
+	setBaseUrl(url) {
+		this.baseUrl = url;
+	}
+
+	getBaseUrl() {
+		return this.baseUrl;
+	}
+}
+
+class BackendFactory {
+
+	static getInstance() {
+
+		const name = 'chatpal'; //TODO Meteor.settings.CHATPAL_BACKEND;
+
+		switch (name) {
+			case 'smarti': return new SmartiBackend();
+			default: return new ChatpalBackend();
+		}
 	}
 
 }
@@ -45,13 +199,16 @@ class SmartiBackendUtils {
 class ChatpalSearchService {
 
 	constructor() {
-		this.backendUtils = SmartiBackendUtils;
+		this.backendUtils = BackendFactory.getInstance();
 	}
 
 	setBaseUrl(url) {
 		this.baseUrl = url;
 		this._pingAsync((err) => {
-			if (err) { console.log(`cannot ping url ${ url }`); } else { this._bootstrapIndex(); }
+			if (err) { console.log(`cannot ping url ${ url }`); } else {
+				this.backendUtils.setBaseUrl(url);
+				this._bootstrapIndex();
+			}
 		});
 	}
 
@@ -74,24 +231,11 @@ class ChatpalSearchService {
 		}
 	}
 
-	_getRoomData(room_id) {
-		const room = RocketChat.models.Rooms.findOneByIdOrName(room_id);
+	_getSubscription(room_id, user_id) {
 
-		let type_symbol = '#';
-		let link_path = 'channel';
+		const user = Meteor.user();
 
-		if (room) {
-			switch (room.t) {
-				case 'd': type_symbol = '@';break;
-				case 'r': type_symbol = '?';link_path = 'request';break;
-			}
-		}
-
-		return {
-			name: room ? room.name : room_id,
-			type_symbol,
-			link_path
-		};
+		return RocketChat.models.Subscriptions.findOneByRoomIdAndUserId(room_id, user._id);
 	}
 
 	_getDateStrings(date) {
@@ -105,8 +249,8 @@ class ChatpalSearchService {
 	_searchAsync(text, page, pagesize, filters, callback) {
 
 		const self = this;
-
-		HTTP.call('GET', this.baseUrl + this.backendUtils.getQueryParameterString(text, page, pagesize, filters), {}, (err, data) => {
+		console.log(this.backendUtils.getBaseUrl() + 'select' + this.backendUtils.getQueryParameterString(text, page, pagesize, filters));
+		HTTP.call('GET', this.backendUtils.getBaseUrl() + 'select' + this.backendUtils.getQueryParameterString(text, page, pagesize, filters), {}, (err, data) => {
 			if (err) {
 				callback(err);
 			} else if (data.statusCode === 200) {
@@ -115,7 +259,7 @@ class ChatpalSearchService {
 				result.docs.forEach(function(doc) {
 					doc.user_data = self._getUserData(doc.user);
 					doc.date_strings = self._getDateStrings(doc.date);
-					doc.room_data = self._getRoomData(doc.room);
+					doc.subscription = self._getSubscription(doc.room);
 				});
 				callback(null, result);
 			} else {
@@ -126,7 +270,7 @@ class ChatpalSearchService {
 
 	_pingAsync(callback) {
 
-		HTTP.call('GET', `${ this.baseUrl }?q=*:*&rows=0`, {}, (err, data) => {
+		HTTP.call('GET', `${ this.baseUrl }select?q=*:*&rows=0`, {}, (err, data) => {
 			if (err) {
 				callback(err);
 			} else if (data.statusCode === 200) {
@@ -135,6 +279,10 @@ class ChatpalSearchService {
 				callback(data);
 			}
 		});
+	}
+
+	index(message, room) {
+		this.backendUtils.index(message, room);
 	}
 
 	search(text, page, pagesize, filters) {
@@ -212,4 +360,12 @@ Meteor.methods({
 	'chatpal.ping'() {
 		return Chatpal.service.SearchService.ping();
 	}
+});
+
+/**
+ * Add Hook
+ * ========
+ */
+RocketChat.callbacks.add('afterSaveMessage', function(m, r) {
+	Chatpal.service.SearchService.index(m, r);
 });

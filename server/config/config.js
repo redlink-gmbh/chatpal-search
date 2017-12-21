@@ -25,6 +25,7 @@ Meteor.startup(() => {
 				i18nLabel: 'CHATPAL_DATE_FORMAT'
 			});
 		});
+		/*
 		this.section('CHATPAL_BOT', function() {
 			this.add('CHATPAL_BOT_BASEURL', '', {
 				type: 'string',
@@ -32,8 +33,10 @@ Meteor.startup(() => {
 				i18nLabel: 'CHATPAL_BOT_BASEURL'
 			});
 		});
+		*/
 	});
 
+	/*
 	Meteor.defer(function() {
 		if (!RocketChat.models.Users.db.findOneById('chatpal')) {
 			RocketChat.models.Users.create({
@@ -65,6 +68,7 @@ Meteor.startup(() => {
 			});
 		}
 	});
+	*/
 });
 
 export const Chatpal = {
