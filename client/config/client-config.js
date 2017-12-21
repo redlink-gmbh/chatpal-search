@@ -1,12 +1,17 @@
 RocketChat.TabBar.removeButton('message-search');
 
 TAPi18n.loadTranslations({
-	en:{
+	en: {
 		CHATPAL_ENTER_SEARCH_STRING: 'Enter search string',
 		CHATPAL_SEARCH: 'Chatpal Search',
 		CHATPAL_BOT: 'Chatpal Bots',
 		CHATPAL_SEARCH_RESULTS_TITLE: 'Search Results',
 		CHATPAL_BASEURL: 'Search Service URL',
+		CHATPAL_BASEURL_DESCRIPTION: 'The base-url of the search-service. It must start with http:// or https://',
+		CHATPAL_AUTH_TOKEN: 'Auth-Token',
+		CHATPAL_AUTH_TOKEN_DESCRIPTION: 'The Authentication-Token will be sent as X-Auth-Token-header.',
+		CHATPAL_BASIC_AUTH: 'Basic Auth',
+		CHATPAL_BASIC_AUTH_DESCRIPTION: 'specifiy username:password to authenticate to the search-service.',
 		CHATPAL_BOT_BASEURL: 'Bot Service URL',
 		CHATPAL_PAGESIZE: 'Pagesize',
 		CHATPAL_DATE_FORMAT: 'Date format (e.g MMM Do)',
@@ -17,12 +22,17 @@ TAPi18n.loadTranslations({
 		CHATPAL_SEARCH_PAGE_OF: 'PAGE %s OF %s',
 		CHATPAL_SEARCH_GOTO_MESSAGE: 'Go to message'
 	},
-	de:{
+	de: {
 		CHATPAL_ENTER_SEARCH_STRING: 'Suchbegriff eingeben',
 		CHATPAL_SEARCH: 'Chatpal Suche',
 		CHATPAL_BOT: 'Chatpal Bots',
 		CHATPAL_SEARCH_RESULTS_TITLE: 'Suchergebnisse',
 		CHATPAL_BASEURL: 'URL des Suchservice',
+		CHATPAL_BASEURL_DESCRIPTION: 'URL des Suchservice. Muss mit http:// oder https:// beginnen',
+		CHATPAL_AUTH_TOKEN: 'Auth-Token',
+		CHATPAL_AUTH_TOKEN_DESCRIPTION: 'Der Auth-Token wird as HTTP-Heaer \'X-Auth-Token\' geschickt',
+		CHATPAL_BASIC_AUTH: 'Basic Auth',
+		CHATPAL_BASIC_AUTH_DESCRIPTION: 'user:passwort um Anfragen an das Suchservice zu authentifizieren',
 		CHATPAL_BOT_BASEURL: 'URL des Botservice',
 		CHATPAL_PAGESIZE: 'Seitengröße',
 		CHATPAL_DATE_FORMAT: 'Datumsformat (e.g MMM Do)',

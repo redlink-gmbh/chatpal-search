@@ -1,7 +1,7 @@
 <template name="ChatpalSearch">
 	<div class="chatpal-external-search-input">
 		<i class="icon-search"></i>
-		<input type="text" class="chatpal-external-search-input-in" placeholder="{{_ "CHATPAL_ENTER_SEARCH_STRING"}}">
+		<input type="text" class="chatpal-external-search-input-in" placeholder='{{_ "CHATPAL_ENTER_SEARCH_STRING"}}'>
 	</div>
 	{{#if showResults}}
 		<div id="chatpal-search-result-container">
@@ -89,7 +89,7 @@
 			<span class="chatpal-date">{{date_strings.date}}</span>
 		</h2>
 		<div class="chatpal-avatar">
-			{{> avatar username=user_data.username}}
+			<div class="chatpal-avatar-image" style="background-image:url(/avatar/{{user_data.username}}?_dc=undefined);"></div>
 		</div>
 		<span class="chatpal-name">{{user_data.name}}</span>
 		<span class="chatpal-time">{{date_strings.time}}</span>
