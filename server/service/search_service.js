@@ -82,8 +82,8 @@ class ChatpalBackend {
 		return res;
 	}
 
-	_listMessages(room, start_date, end_date, start, rows) {
-		return this._messages.find({rid:room, ts:{$gt: new Date(start_date), $lt: new Date(end_date)}}, {skip:start, limit:rows}).fetch();
+	_listMessages(start_date, end_date, start, rows) {
+		return this._messages.find({ts:{$gt: new Date(start_date), $lt: new Date(end_date)}}, {skip:start, limit:rows}).fetch();
 	}
 
 	_existsDataOlderThan(date) {
@@ -97,48 +97,43 @@ class ChatpalBackend {
 			number: 0
 		};
 
-		const rooms = this._rooms.find({ts:{$lt: new Date(last_date), $gt: new Date(report.last_date)}}).fetch();
+		let hasNext = true;
+		const step = 10;
+		const rows = step;
+		let start = 0;
+		while (hasNext) {
+			const messages = this._listMessages(report.last_date, last_date, start, rows);
 
-		rooms.forEach((room) => {
-			let hasNext = true;
-			const step = 10;
-			const rows = step;
-			let start = 0;
-			while (hasNext) {
-				const messages = this._listMessages(room._id, report.last_date, last_date, start, rows);
+			const solrDocs = [];
 
-				const solrDocs = [];
+			if (messages.length > 0) {
 
-				if (messages.length > 0) {
-
-					messages.forEach(function(m) {
-						solrDocs.push({
-							id: m._id,
-							room: m.rid,
-							text: m.msg,
-							user: m.u._id,
-							date: m._updatedAt
-						});
+				messages.forEach(function(m) {
+					solrDocs.push({
+						id: m._id,
+						room: m.rid,
+						text: m.msg,
+						user: m.u._id,
+						date: m._updatedAt
 					});
+				});
 
-					const result = HTTP.call('POST', `${ this.baseUrl }update/json/docs?commitWithin=1000`, {data:solrDocs});
+				const result = HTTP.call('POST', `${ this.baseUrl }update/json/docs?commitWithin=1000`, {data:solrDocs});
 
-					report.number += messages.length;
+				report.number += messages.length;
 
-					start += step;
-				} else {
-					hasNext = false;
-				}
-
+				start += step;
+			} else {
+				hasNext = false;
 			}
-		});
 
+		}
 		return report;
 	}
 
 	bootstrap() {
 
-		const report = this._index_log.find({}, {limit:1, sort:{last_date:-1}}).fetch();
+		const report = this._index_log.find({}, {limit:1, sort:{last_date:1}}).fetch();
 
 		let last_date = new Date().valueOf();
 
