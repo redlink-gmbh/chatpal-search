@@ -200,6 +200,7 @@ class ChatpalSearchService {
 
 	constructor() {
 		this.backendUtils = BackendFactory.getInstance();
+		this.searchHandler = 'search';
 	}
 
 	setBaseUrl(url) {
@@ -251,8 +252,7 @@ class ChatpalSearchService {
 	_searchAsync(text, page, pagesize, filters, callback) {
 
 		const self = this;
-		console.log(this.backendUtils.getBaseUrl() + 'select' + this.backendUtils.getQueryParameterString(text, page, pagesize, filters));
-		HTTP.call('GET', this.backendUtils.getBaseUrl() + 'select' + this.backendUtils.getQueryParameterString(text, page, pagesize, filters), ChatpalSearchService._httpOptions, (err, data) => {
+		HTTP.call('GET', this.backendUtils.getBaseUrl() + this.searchHandler + this.backendUtils.getQueryParameterString(text, page, pagesize, filters), ChatpalSearchService._httpOptions, (err, data) => {
 			if (err) {
 				callback(err);
 			} else if (data.statusCode === 200) {
