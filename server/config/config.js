@@ -1,54 +1,4 @@
 Meteor.startup(() => {
-	RocketChat.settings.addGroup('Chatpal', function() {
-		this.section('CHATPAL_SEARCH', function() {
-			this.add('CHATPAL_BASEURL', '', {
-				type: 'string',
-				public: true,
-				i18nLabel: 'CHATPAL_BASEURL',
-				i18nDescription: 'CHATPAL_BASEURL_DESCRIPTION'
-			});
-
-			this.add('CHATPAL_AUTH_TOKEN', '', {
-				type: 'string',
-				public: true,
-				i18nLabel: 'CHATPAL_AUTH_TOKEN',
-				i18nDescription: 'CHATPAL_AUTH_TOKEN_DESCRIPTION'
-			});
-			this.add('CHATPAL_BASIC_AUTH', '', {
-				type: 'string',
-				public: true,
-				i18nLabel: 'CHATPAL_BASIC_AUTH',
-				i18nDescription: 'CHATPAL_BASIC_AUTH_DESCRIPTION'
-			});
-
-			this.add('CHATPAL_PAGESIZE', 5, {
-				type: 'int',
-				public: true,
-				i18nLabel: 'CHATPAL_PAGESIZE'
-			});
-
-			this.add('CHATPAL_TIME_FORMAT', 'H:mm A', {
-				type: 'string',
-				public: true,
-				i18nLabel: 'CHATPAL_TIME_FORMAT'
-			});
-
-			this.add('CHATPAL_DATE_FORMAT', 'MMM Do', {
-				type: 'string',
-				public: true,
-				i18nLabel: 'CHATPAL_DATE_FORMAT'
-			});
-		});
-		/*
-		this.section('CHATPAL_BOT', function() {
-			this.add('CHATPAL_BOT_BASEURL', '', {
-				type: 'string',
-				public: true,
-				i18nLabel: 'CHATPAL_BOT_BASEURL'
-			});
-		});
-		*/
-	});
 
 	/*
 	Meteor.defer(function() {
@@ -84,8 +34,33 @@ Meteor.startup(() => {
 	});
 	*/
 });
+export class ChatpalBackend {
+	constructor(config) {
+
+		this.refresh = !!config;
+
+		config = config || RocketChat.models.Settings.findOneNotHiddenById('CHATPAL_CONFIG');
+
+		this.enabled = !!config; //TODO ping
+
+		if (config && config.backendtype === 'cloud') {
+			this.baseurl = 'https://api.chatpal.io';
+			this.searchpath = '/search/query';
+			this.updatepath = '/search/update';
+			this.headers = {'X-Client-Key':config.apikey};
+		} else if (config && config.backendtype === 'onsite') {
+			this.baseurl = config.baseurl.endsWith('/') ? config.baseurl.slice(0, -1) : config.baseurl;
+			this.searchpath = '/search';
+			this.updatepath = '/update/json/docs';
+			this.headers = config.headers || {};
+		}
+
+	}
+}
+
 
 export const Chatpal = {
 	models: {},
-	service: {}
+	service: {},
+	Backend: new ChatpalBackend()
 };

@@ -244,3 +244,16 @@
 		width: 400px;
 	}
 }
+
+.chatpal-api-key-input {
+	float: left;
+	width: auto !important;
+	min-width: 400px;
+	margin-right: 5px;
+}
+
+.chatpal-tac {
+	height: 200px;
+	overflow-y: scroll;
+	margin: 0 !important;
+}

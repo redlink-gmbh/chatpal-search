@@ -19,7 +19,7 @@ Template.ChatpalSearch.onCreated(function() {
 
 Template.ChatpalSearch.onRendered(function() {
 
-	this.pageSize = RocketChat.settings.get('CHATPAL_PAGESIZE');
+	this.pageSize = RocketChat.settings.get('CHATPAL_PAGESIZE')|| 3;
 
 	this.page = 1;
 
@@ -32,27 +32,15 @@ Template.ChatpalSearch.onRendered(function() {
 
 		this.showResults.set(true);
 
-		Meteor.call('chatpal.search', this.text, this.page, this.pageSize, [], (err, res) => {
+		Meteor.call('chatpal.search.search', this.text, this.page, this.pageSize, [], (err, res) => {
 			$('.flex-tab__content').scrollTop(0);
 			this.loading.set(false);
 			if (err) {
-				console.log('ping failed');
+				console.log('querying failed');
 				this.enabled.set(false);
 			} else {
 				this.enabled.set(true);
 				this.result.set(res);
-			}
-		});
-	};
-
-	this.ping = () => {
-		Meteor.call('chatpal.ping', (err) => {
-			if (err) {
-				console.log('ping failed');
-				this.enabled.set(false);
-			} else {
-				console.log('ping successful');
-				this.enabled.set(true);
 			}
 		});
 	};
@@ -126,7 +114,7 @@ Template.ChatpalSearchSingleMessage.helpers({
 		return subscription.name;
 	},
 
-	roomIcon(subscription) {console.log(RocketChat.roomTypes);
+	roomIcon(subscription) {
 		return RocketChat.roomTypes.getIcon(subscription.t) || 'at'; //TODO fix
 	},
 

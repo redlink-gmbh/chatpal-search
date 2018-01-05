@@ -1,0 +1,56 @@
+<template name="ChatpalAdmin">
+	<div class="section">
+		<form>
+			<div class="rocket-form">
+				<fieldset>
+					<div class="input-line">
+						<div>
+							<label>
+								<input type="radio" class="chatpal-admin-type" name="backend" value="cloud" checked="{{$eq backend 'cloud'}}">
+								Cloud Service
+							</label>
+							<label>
+								<input type="radio" class="chatpal-admin-type" name="backend" value="onsite" checked="{{$eq backend 'onsite'}}">
+								On-Site Installation
+							</label>
+						</div>
+					</div>
+				</fieldset>
+				{{#if $eq backend 'onsite'}}
+				<fieldset>
+					<div class="input-line">
+						<label>Base Url</label>
+						<div>
+							<input type="text" value="{{baseurl}}" autocomplete="off" name="baseurl">
+						</div>
+					</div>
+				</fieldset>
+				{{/if}}
+				{{#if $eq backend 'cloud'}}
+				<fieldset>
+					<div class="input-line">
+						<label>Api Key</label>
+						<div class="chatpal-api-key">
+							<input type="text" value="{{apikey}}" class="chatpal-api-key-input" autocomplete="off" name="apikey">
+							<button disabled="{{$not validated}}" class="button primary send"><span>Refresh</span></button>
+							<div style="clear: both"></div>
+						</div>
+						{{#if $not validated}}
+						<div>
+							<small class="settings-description secondary-font-color">
+								<!-- TODO translate -->
+								<b>Not yet an API key?</b>
+								<a href="/admin/chatpal/api-key">Get one!</a>
+							</small>
+						</div>
+						{{/if}}
+					</div>
+				</fieldset>
+				{{/if}}
+				<div class="submit">
+					<button class="button primary send"><span>{{_ "Save"}}</span></button>
+				</div>
+			</div>
+		</form>
+	</div>
+</template>

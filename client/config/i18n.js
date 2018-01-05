@@ -1,7 +1,6 @@
-RocketChat.TabBar.removeButton('message-search');
-
 TAPi18n.loadTranslations({
 	en: {
+		CHATPAL: 'Chatpal',
 		CHATPAL_ENTER_SEARCH_STRING: 'Enter search string',
 		CHATPAL_SEARCH: 'Chatpal Search',
 		CHATPAL_BOT: 'Chatpal Bots',
@@ -20,9 +19,14 @@ TAPi18n.loadTranslations({
 		CHATPAL_SEARCH_ONE_RESULTS: '1 result',
 		CHATPAL_SEARCH_RESULTS: '%s results',
 		CHATPAL_SEARCH_PAGE_OF: 'PAGE %s OF %s',
-		CHATPAL_SEARCH_GOTO_MESSAGE: 'Go to message'
+		CHATPAL_SEARCH_GOTO_MESSAGE: 'Go to message',
+		CHATPAL_LANGUAGE: 'Language',
+		CHATPAL_LANGUAGE_EN: 'English',
+		CHATPAL_LANGUAGE_DE: 'German',
+		CHATPAL_LANGUAGE_NONE: 'Generic'
 	},
 	de: {
+		CHATPAL: 'Chatpal',
 		CHATPAL_ENTER_SEARCH_STRING: 'Suchbegriff eingeben',
 		CHATPAL_SEARCH: 'Chatpal Suche',
 		CHATPAL_BOT: 'Chatpal Bots',
@@ -41,18 +45,10 @@ TAPi18n.loadTranslations({
 		CHATPAL_SEARCH_ONE_RESULTS: '1 Ergebnis',
 		CHATPAL_SEARCH_RESULTS: '%s Ergebnisse',
 		CHATPAL_SEARCH_PAGE_OF: 'SEITE %s VON %s',
-		CHATPAL_SEARCH_GOTO_MESSAGE: 'Zur Nachricht'
+		CHATPAL_SEARCH_GOTO_MESSAGE: 'Zur Nachricht',
+		CHATPAL_LANGUAGE: 'Sprache',
+		CHATPAL_LANGUAGE_EN: 'Englisch',
+		CHATPAL_LANGUAGE_DE: 'Deutsch',
+		CHATPAL_LANGUAGE_NONE: 'Allgemein'
 	}
 }, 'project');
-
-$('body').on('DOMNodeInserted', function(e) {
-	const rc = $(e.target).find('#rocket-chat');
-	if (rc[0] && !rc.find('.chatpal-external-search-input')[0]) {
-
-		const container = $('<div>').attr('id', 'chatpal-external-search').appendTo(rc);
-
-		//render input field
-		Blaze.renderWithData(Template.ChatpalSearch, {}, container[0]);
-	}
-
-});

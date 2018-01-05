@@ -1,0 +1,33 @@
+<template name="ChatpalApiKey">
+	<div class="section">
+		<form>
+			<div class="rocket-form">
+				<fieldset>
+					<div class="input-line">
+						<label>Email Address</label>
+						<div>
+							<input type="text" autocomplete="off" name="email">
+						</div>
+					</div>
+					<div class="input-line">
+						<label>Terms and Conditions</label>
+						<div class="chatpal-tac section">
+							{{> ChatpalTaC}}
+						</div>
+					</div>
+					<div class="input-line">
+						<div>
+							<label>
+								<input type="checkbox" name="readtac">
+								I've read the terms and conditions.
+							</label>
+						</div>
+					</div>
+				</fieldset>
+				<div class="submit">
+					<button class="button primary send"><span>{{_ "Create Key"}}</span></button>
+				</div>
+			</div>
+		</form>
+	</div>
+</template>
