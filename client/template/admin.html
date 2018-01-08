@@ -2,51 +2,99 @@
 	<div class="section">
 		<form>
 			<div class="rocket-form">
+				<h2>{{_ "CHATPAL_CONFIG_BACKEND"}}</h2>
 				<fieldset>
 					<div class="input-line">
 						<div>
 							<label>
-								<input type="radio" class="chatpal-admin-type" name="backend" value="cloud" checked="{{$eq backend 'cloud'}}">
-								Cloud Service
+								<input type="radio" class="chatpal-admin-type" name="backendtype" value="cloud" checked="{{$eq config.backendtype 'cloud'}}">
+								{{_ "CHATPAL_TERM_CLOUD_SERVICE"}}
 							</label>
 							<label>
-								<input type="radio" class="chatpal-admin-type" name="backend" value="onsite" checked="{{$eq backend 'onsite'}}">
-								On-Site Installation
+								<input type="radio" class="chatpal-admin-type" name="backendtype" value="onsite" checked="{{$eq config.backendtype 'onsite'}}">
+								{{_ "CHATPAL_TERM_ON_SITE_INSTALLATION"}}
 							</label>
 						</div>
 					</div>
-				</fieldset>
-				{{#if $eq backend 'onsite'}}
-				<fieldset>
+				{{#if $eq config.backendtype 'onsite'}}
 					<div class="input-line">
-						<label>Base Url</label>
+						<label>{{_ "CHATPAL_TERM_BASE_URL"}}</label>
 						<div>
-							<input type="text" value="{{baseurl}}" autocomplete="off" name="baseurl">
+							<input type="text" value="{{config.baseurl}}" autocomplete="off" name="baseurl">
+						</div>
+						<div>
+							<small class="settings-description secondary-font-color">
+								{{_ "CHATPAL_TERM_BASE_URL_DESC"}}
+							</small>
 						</div>
 					</div>
-				</fieldset>
 				{{/if}}
-				{{#if $eq backend 'cloud'}}
-				<fieldset>
+				{{#if $eq config.backendtype 'cloud'}}
 					<div class="input-line">
-						<label>Api Key</label>
+						<label>{{_ "CHATPAL_TERM_API_KEY"}}</label>
 						<div class="chatpal-api-key">
-							<input type="text" value="{{apikey}}" class="chatpal-api-key-input" autocomplete="off" name="apikey">
-							<button disabled="{{$not validated}}" class="button primary send"><span>Refresh</span></button>
+							<input type="text" value="{{config.apikey}}" class="chatpal-api-key-input" autocomplete="off" name="apikey">
+							<button disabled="{{$not validated}}" class="button primary send"><span>{{_ "CHATPAL_TERM_REFRESH_KEY"}}</span></button>
 							<div style="clear: both"></div>
 						</div>
 						{{#if $not validated}}
 						<div>
 							<small class="settings-description secondary-font-color">
 								<!-- TODO translate -->
-								<b>Not yet an API key?</b>
-								<a href="/admin/chatpal/api-key">Get one!</a>
+								<b>{{_ "CHATPAL_SENTENCE_NO_API_KEY"}}</b>
+								<a href="/admin/chatpal/api-key">{{_ "CHATPAL_SENTENCE_GET_YOUR_API_KEY"}}</a>
 							</small>
 						</div>
 						{{/if}}
 					</div>
-				</fieldset>
 				{{/if}}
+				</fieldset>
+				<h2>{{_ "CHATPAL_CONFIG_INDEXING"}}</h2>
+				<fieldset>
+					<div class="input-line">
+						<label>{{_ "CHATPAL_TERM_LANGUAGE"}}</label>
+						<div>
+							<select value="{{config.language}}" autocomplete="off" name="language">
+								<option value="none">{{_ "CHATPAL_TERM_LANGUAGE_NONE"}}</option>
+								<option value="de">{{_ "CHATPAL_TERM_LANGUAGE_DE"}}</option>
+								<option value="en">{{_ "CHATPAL_TERM_LANGUAGE_EN"}}</option>
+							</select>
+						</div>
+					</div>
+					<div class="input-line">
+						<label>{{_ "CHATPAL_TERM_INDEX_BATCHSIZE_IN_HOURS"}}</label>
+						<div>
+							<input type="number" value="{{config.batchsize}}" autocomplete="off" name="batchsize">
+						</div>
+					</div>
+					<div class="input-line">
+						<label>{{_ "CHATPAL_TERM_WAIT_BETWEEN_INDEX_BATCHES_IN_MILLISECONDS"}}</label>
+						<div>
+							<input type="number" value="{{config.timeout}}" autocomplete="off" name="timeout">
+						</div>
+					</div>
+				</fieldset>
+				<h2>{{_ "CHATPAL_CONFIG_SEARCH"}}</h2>
+				<fieldset>
+					<div class="input-line">
+						<label>{{_ "CHATPAL_TERM_DOCUMENTS_PER_PAGE"}}</label>
+						<div>
+							<input type="number" value="{{config.docs_per_page}}" autocomplete="off" name="docs_per_page">
+						</div>
+					</div>
+					<div class="input-line">
+						<label>{{_ "CHATPAL_TERM_DATEFORMAT"}}</label>
+						<div>
+							<input type="text" value="{{config.dateformat}}" autocomplete="off" name="dateformat">
+						</div>
+					</div>
+					<div class="input-line">
+						<label>{{_ "CHATPAL_TERM_TIMEFORMAT"}}</label>
+						<div>
+							<input type="text" value="{{config.timeformat}}" autocomplete="off" name="timeformat">
+						</div>
+					</div>
+				</fieldset>
 				<div class="submit">
 					<button class="button primary send"><span>{{_ "Save"}}</span></button>
 				</div>

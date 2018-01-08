@@ -2,11 +2,9 @@ Package.describe({
 	name: 'chatpal:search',
 	version: '0.0.1',
 	summary: 'Chatpal search connector',
-	git: ''
-	//,documentation: 'README.md'
+	git: 'https://github.com/redlink-gmbh/chatpal-search',
+	documentation: 'README.md'
 });
-
-//https://docs.meteor.com/api/packagejs.html
 
 Package.onUse(function(api) {
 	api.use([
@@ -34,6 +32,7 @@ Package.onUse(function(api) {
 	], 'client');
 
 	api.addFiles(['server/config/config.js',
+		'server/base/backend.js',
 		//'server/service/bot_service.js',
 		'server/service/search_service.js',
 		'server/method/methods.js'

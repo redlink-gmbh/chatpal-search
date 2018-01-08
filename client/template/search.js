@@ -19,8 +19,6 @@ Template.ChatpalSearch.onCreated(function() {
 
 Template.ChatpalSearch.onRendered(function() {
 
-	this.pageSize = RocketChat.settings.get('CHATPAL_PAGESIZE')|| 3;
-
 	this.page = 1;
 
 	this.text = undefined;
@@ -32,7 +30,7 @@ Template.ChatpalSearch.onRendered(function() {
 
 		this.showResults.set(true);
 
-		Meteor.call('chatpal.search.search', this.text, this.page, this.pageSize, [], (err, res) => {
+		Meteor.call('chatpal.search.search', this.text, this.page, [], (err, res) => {
 			$('.flex-tab__content').scrollTop(0);
 			this.loading.set(false);
 			if (err) {
@@ -90,8 +88,8 @@ Template.ChatpalSearch.helpers({
 		const result = Template.instance().result.get();
 		if (result) {
 			return {
-				currentPage: 1 + result.start/Template.instance().pageSize,
-				numOfPages: Math.ceil(result.numFound/Template.instance().pageSize)
+				currentPage: 1 + result.start/result.pageSize,
+				numOfPages: Math.ceil(result.numFound/result.pageSize)
 			};
 		}
 	},

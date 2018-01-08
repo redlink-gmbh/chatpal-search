@@ -1,7 +1,7 @@
 Meteor.startup(function() {
 	RocketChat.AdminBox.addOption({
 		href: 'admin-chatpal',
-		i18nLabel: 'Chatpal',
+		i18nLabel: 'CHATPAL_SEARCH',
 		icon: 'post',
 		permissionGranted() {
 			return true;

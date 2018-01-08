@@ -2,12 +2,11 @@
  * Add the service methods to meteor
  * =================================
  */
-import {Chatpal} from '../config/config';
-import {ChatpalBackend} from '../config/config';
+import {Chatpal} from '../base/backend';
 
 Meteor.methods({
-	'chatpal.search.search'(text, page, pagesize, filters) {
-		return Chatpal.service.SearchService.search(text, page, pagesize, filters);
+	'chatpal.search.search'(text, page, filters) {
+		return Chatpal.service.SearchService.search(text, page, filters);
 	}
 });
 
@@ -19,12 +18,12 @@ Meteor.methods({
 		});
 
 		//test settings
-		Chatpal.Backend = new ChatpalBackend(config);
+		Chatpal.Backend.init(config);
 
 		if (!Chatpal.Backend.enabled) { throw new Error('cannot enable chatpal backend'); }
 
 		//make settings
-		RocketChat.models.Settings.createWithIdAndValue('CHATPAL_CONFIG', config);
+		RocketChat.models.Settings.updateValueById('CHATPAL_CONFIG', config);
 
 		//start all services
 		Object.keys(Chatpal.service).forEach((key) => {

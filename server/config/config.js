@@ -34,33 +34,3 @@ Meteor.startup(() => {
 	});
 	*/
 });
-export class ChatpalBackend {
-	constructor(config) {
-
-		this.refresh = !!config;
-
-		config = config || RocketChat.models.Settings.findOneNotHiddenById('CHATPAL_CONFIG');
-
-		this.enabled = !!config; //TODO ping
-
-		if (config && config.backendtype === 'cloud') {
-			this.baseurl = 'https://api.chatpal.io';
-			this.searchpath = '/search/query';
-			this.updatepath = '/search/update';
-			this.headers = {'X-Client-Key':config.apikey};
-		} else if (config && config.backendtype === 'onsite') {
-			this.baseurl = config.baseurl.endsWith('/') ? config.baseurl.slice(0, -1) : config.baseurl;
-			this.searchpath = '/search';
-			this.updatepath = '/update/json/docs';
-			this.headers = config.headers || {};
-		}
-
-	}
-}
-
-
-export const Chatpal = {
-	models: {},
-	service: {},
-	Backend: new ChatpalBackend()
-};

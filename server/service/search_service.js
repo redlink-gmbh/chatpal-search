@@ -1,5 +1,6 @@
 /* globals SystemLogger */
-import {Chatpal} from '../config/config';
+import {Chatpal} from '../base/backend.js';
+import _ from 'underscore';
 
 const Future = Npm.require('fibers/future');
 const moment = Npm.require('moment');
@@ -8,8 +9,8 @@ class ChatpalIndexer {
 
 	constructor() {
 		this.baseUrl = Chatpal.Backend.baseurl;
+		this.httpOptions = _.clone(Chatpal.Backend.httpOptions);
 		this.language = Chatpal.Backend.language || 'none';//TODO
-		this.gap = 86400000; //one day
 		this._messages = RocketChat.models.Messages.model;
 		this.bootstrap();
 	}
@@ -22,11 +23,19 @@ class ChatpalIndexer {
 		return this._messages.find({_updatedAt:{$lt: new Date(date)}}, {limit:1}).fetch().length > 0;
 	}
 
+	_clear() {
+		console.debug('Chatpal: Clear Index');
+		HTTP.call('GET', Chatpal.Backend.baseurl + Chatpal.Backend.clearpath, this.httpOptions.data);
+		this.finished = false;
+	}
+
 	_index(last_date) {
+
+		console.debug(`Chatpal: Index ${ last_date }`);
 
 		const report = {
 			start_date: last_date,
-			last_date: last_date - this.gap,
+			last_date: last_date - Chatpal.Backend.config.batchsize * 3600000,
 			number: 0
 		};
 
@@ -51,7 +60,9 @@ class ChatpalIndexer {
 					});
 				});
 
-				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }?commitWithin=1000`, {data:solrDocs});
+				this.httpOptions.data = solrDocs;
+
+				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }?`, this.httpOptions);
 
 				report.number += messages.length;
 
@@ -68,32 +79,52 @@ class ChatpalIndexer {
 		this._break = true;
 	}
 
+	_run(last_date, fut) {
+		if (this._existsDataOlderThan(last_date) && !this._break) {
+			Meteor.setTimeout(() => {
+				this.report = this._index(last_date);
+
+				console.log('Indexed:', this.report);
+
+				this._run(this.report.last_date, fut);
+
+			}, Chatpal.Backend.config.timeout);
+		} else if (this._break) {
+			console.log('Chatpal: stopped bootstrap');
+			fut.return();
+		} else {
+			this.finished = true;
+			console.log('Chatpal: finished bootstrap');
+			fut.return();
+		}
+	}
+
+	continue() {
+		const fut = new Future();
+
+		if (!this.finished) {
+			console.debug('Chatpal: Continue Bootstrapping');
+			this._run(this.report.last_date, fut);
+		} else {
+			console.debug('Chatpal: Bootstrapping already finished');
+			fut.return();
+		}
+
+		return fut;
+	}
+
 	bootstrap() {
+
+		console.debug('Chatpal: bootstrap');
+
+		this._clear();
+
 		const fut = new Future();
 		const last_date = new Date().valueOf();
 
 		console.log(`exists older data than: ${ last_date }? ${ this._existsDataOlderThan(last_date) }`);
 
-		const run = (last_date) => {
-			if (this._existsDataOlderThan(last_date) && !this._break) {
-				Meteor.setTimeout(() => {
-					const report = this._index(last_date);
-
-					console.log('Indexed:', report);
-
-					run(report.last_date);
-
-				}, 1000);
-			} else if (this._break) {
-				console.log('Chatpal: stopped bootstrap');
-				fut.return();
-			} else {
-				console.log('Chatpal: finished bootstrap');
-				fut.return();
-			}
-		};
-
-		run(last_date);
+		this._run(last_date, fut);
 
 		return fut;
 	}
@@ -117,6 +148,10 @@ class ChatpalSearchService {
 
 		if (this.enabled && Chatpal.Backend.refresh) {
 			this.indexer = new ChatpalIndexer();
+		} else if (this.indexer) {
+			this.indexer.continue();
+		} else {
+			this.indexer = new ChatpalIndexer();//TODO reindex when restart rocketchat?
 		}
 	}
 
@@ -148,8 +183,8 @@ class ChatpalSearchService {
 	_getDateStrings(date) {
 		const d = moment(date);
 		return {
-			date: d.format(RocketChat.settings.get('CHATPAL_DATE_FORMAT') || 'MMM Do'),
-			time: d.format(RocketChat.settings.get('CHATPAL_TIME_FORMAT') || 'H:mm A')
+			date: d.format(Chatpal.Backend.config.dateformat),
+			time: d.format(Chatpal.Backend.config.timeformat)
 		};
 	}
 
@@ -158,7 +193,8 @@ class ChatpalSearchService {
 		return rooms.length > 0 ? `&fq=room:(${ rooms.map(room => room.rid).join(' OR ') })` : '';
 	}
 
-	_getQueryParameterString(text, page, pagesize, /*filters*/) {
+	_getQueryParameterString(text, page, /*filters*/) {
+		const pagesize = Chatpal.Backend.config.docs_per_page;
 		return `?q=${ encodeURIComponent(text) }&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
 	}
 
@@ -174,10 +210,10 @@ class ChatpalSearchService {
 		return res;
 	}
 
-	_searchAsync(text, page, pagesize, filters, callback) {
+	_searchAsync(text, page, filters, callback) {
 
 		const self = this;
-		HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ this._getQueryParameterString(text, page, pagesize, filters) }`, ChatpalSearchService._httpOptions, (err, data) => {
+		HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ this._getQueryParameterString(text, page, filters) }`, Chatpal.Backend.httpOptions, (err, data) => {
 			if (err) {
 				callback(err);
 			} else if (data.statusCode === 200) {
@@ -191,6 +227,9 @@ class ChatpalSearchService {
 					doc.date_strings = self._getDateStrings(doc.date);
 					doc.subscription = self._getSubscription(doc.room, user._id);
 				});
+
+				result.pageSize = Chatpal.Backend.config.docs_per_page;
+
 				callback(null, result);
 			} else {
 				callback(data);
@@ -198,6 +237,7 @@ class ChatpalSearchService {
 		});
 	}
 
+	/*
 	static get _httpOptions() { //TODO
 		const options = {
 			headers: Chatpal.Backend.headers
@@ -214,26 +254,11 @@ class ChatpalSearchService {
 		}
 
 		return options;
-	}
-
-	/*
-	_pingAsync(callback) {
-
-		HTTP.call('GET', `${ this.baseUrl }select?q=*:*&rows=0`, ChatpalSearchService._httpOptions, (err, data) => {
-			if (err) {
-				callback(err);
-			} else if (data.statusCode === 200) {
-				callback(null);
-			} else {
-				callback(data);
-			}
-		});
-	}
-	*/
+	}*/
 
 	index(m) {
 		if (this.enabled) {
-			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }?commitWithin=1000`, {data:{
+			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, Chatpal.Backend.httpOptions, {data:{
 				id: m._id,
 				room: m.rid,
 				text: m.msg,
@@ -243,10 +268,10 @@ class ChatpalSearchService {
 		}
 	}
 
-	search(text, page, pagesize, filters) {
+	search(text, page, filters) {
 		const fut = new Future();
 
-		SystemLogger.info('chatpal search: ', this.baseUrl, text, page, pagesize, filters);
+		SystemLogger.info('chatpal search: ', this.baseUrl, text, page, filters);
 
 		const bound_callback = Meteor.bindEnvironment(function(err, res) {
 			if (err) {
@@ -257,31 +282,12 @@ class ChatpalSearchService {
 		});
 
 		if (this.enabled) {
-			this._searchAsync(text, page, pagesize, filters, bound_callback);
+			this._searchAsync(text, page, filters, bound_callback);
 		} else {
 			bound_callback('backend is currently not enabled');
 		}
 		return fut.wait();
 	}
-
-	/*
-		ping() {
-		const fut = new Future();
-
-		SystemLogger.info('chatpal ping');
-
-		const bound_callback = Meteor.bindEnvironment(function(err, res) {
-			if (err) {
-				fut.throw(err);
-			} else {
-				fut.return(res);
-			}
-		});
-
-		this._pingAsync(bound_callback);
-		return fut.wait();
-	}
-	 */
 }
 
 /**
