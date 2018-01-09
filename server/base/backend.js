@@ -8,6 +8,8 @@ export class ChatpalBackend {
 
 		storedConfig = (storedConfig && storedConfig.length === 1) ? storedConfig[0].value : undefined;
 
+		this.refresh = false;
+
 		if (config) {
 			if (!storedConfig) {
 				this.refresh = true;
@@ -25,6 +27,7 @@ export class ChatpalBackend {
 		if (config && config.backendtype === 'cloud') {
 			this.backendtype = config.backendtype;
 			this.baseurl = 'https://api.chatpal.io';
+			this.language = config.language;
 			this.searchpath = '/search/query';
 			this.updatepath = '/search/update';
 			this.pingpath = '/account/key';
@@ -37,6 +40,7 @@ export class ChatpalBackend {
 		} else if (config && config.backendtype === 'onsite') {
 			this.backendtype = config.backendtype;
 			this.baseurl = config.baseurl.endsWith('/') ? config.baseurl.slice(0, -1) : config.baseurl;
+			this.language = config.language;
 			this.searchpath = '/search';
 			this.updatepath = '/update/json/docs';
 			this.pingpath = '/search?q=*:*&rows=0&facet=false';

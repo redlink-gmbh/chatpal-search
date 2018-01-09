@@ -12,10 +12,12 @@ Package.onUse(function(api) {
 		'templating',
 		'rocketchat:lib',
 		'kadira:flow-router',
-		'http'
+		'http',
+		'meteorhacks:inject-initial'
 	]);
 
 	api.addFiles('server/asset/pal.png', 'server', {isAsset:true});
+	api.addFiles('server/asset/chatpal-icons.svg', 'server', {isAsset:true});
 
 	api.addFiles([
 		'client/config/i18n.js',

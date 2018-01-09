@@ -1,3 +1,4 @@
+/* globals Inject */
 Meteor.startup(() => {
 
 	/*
@@ -34,3 +35,5 @@ Meteor.startup(() => {
 	});
 	*/
 });
+
+Inject.rawBody('chatpal-icons', Assets.getText('server/asset/chatpal-icons.svg'));

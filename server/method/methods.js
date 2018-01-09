@@ -6,7 +6,11 @@ import {Chatpal} from '../base/backend';
 
 Meteor.methods({
 	'chatpal.search.search'(text, page, filters) {
-		return Chatpal.service.SearchService.search(text, page, filters);
+		try {
+			return Chatpal.service.SearchService.search(text, page, filters);
+		} catch (e) {console.log(e);
+			throw new Meteor.Error("chatpal-error", e);
+		}
 	}
 });
 

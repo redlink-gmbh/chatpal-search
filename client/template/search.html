@@ -74,6 +74,11 @@
 				Search is currently not available. Maybe it is not yet configured or service is currently down.
 			</div>
 		{{/if}}
+		{{#if badRequest}}
+		<div class="chatpal-search-info">
+			{{badRequest}}<!-- TODO Display -->
+		</div>
+		{{/if}}
 	</div>
 		</div>
 	{{/if}}

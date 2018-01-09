@@ -7,11 +7,13 @@ const moment = Npm.require('moment');
 
 class ChatpalIndexer {
 
-	constructor() {
+	constructor(clear) {
 		this.baseUrl = Chatpal.Backend.baseurl;
-		this.httpOptions = _.clone(Chatpal.Backend.httpOptions);
 		this.language = Chatpal.Backend.language || 'none';//TODO
 		this._messages = RocketChat.models.Messages.model;
+		if (clear) {
+			this._clear();
+		}
 		this.bootstrap();
 	}
 
@@ -25,8 +27,7 @@ class ChatpalIndexer {
 
 	_clear() {
 		console.debug('Chatpal: Clear Index');
-		HTTP.call('GET', Chatpal.Backend.baseurl + Chatpal.Backend.clearpath, this.httpOptions.data);
-		this.finished = false;
+		HTTP.call('GET', Chatpal.Backend.baseurl + Chatpal.Backend.clearpath, Chatpal.Backend.httpOptions);
 	}
 
 	_index(last_date) {
@@ -51,18 +52,26 @@ class ChatpalIndexer {
 			if (messages.length > 0) {
 
 				messages.forEach(function(m) {
-					solrDocs.push({
+					const doc = {
 						id: m._id,
 						room: m.rid,
-						text: m.msg,
 						user: m.u._id,
-						date: m._updatedAt
-					});
+						created: m.ts,
+						updated: m._updatedAt
+					};
+
+					doc[`text_${ Chatpal.Backend.language }`] = m.msg;
+
+					solrDocs.push(doc);
 				});
 
-				this.httpOptions.data = solrDocs;
 
-				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }?`, this.httpOptions);
+
+				const data = {data:solrDocs};
+
+				_.extend(data, Chatpal.Backend.httpOptions);
+
+				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }?`, data);
 
 				report.number += messages.length;
 
@@ -93,34 +102,29 @@ class ChatpalIndexer {
 			console.log('Chatpal: stopped bootstrap');
 			fut.return();
 		} else {
-			this.finished = true;
 			console.log('Chatpal: finished bootstrap');
 			fut.return();
 		}
 	}
 
-	continue() {
-		const fut = new Future();
+	_getlastdate() {
+		const result = HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }?q=*:*&rows=1&sort=created%20asc`, Chatpal.Backend.httpOptions);
 
-		if (!this.finished) {
-			console.debug('Chatpal: Continue Bootstrapping');
-			this._run(this.report.last_date, fut);
+		if (result.data.response.numFound > 0) {
+			console.log(result.data.response.docs[0].created);
+			return new Date(result.data.response.docs[0].created).valueOf();
 		} else {
-			console.debug('Chatpal: Bootstrapping already finished');
-			fut.return();
+			return new Date().valueOf();
 		}
-
-		return fut;
 	}
 
 	bootstrap() {
 
 		console.debug('Chatpal: bootstrap');
 
-		this._clear();
-
 		const fut = new Future();
-		const last_date = new Date().valueOf();
+
+		const last_date = this._getlastdate();
 
 		console.log(`exists older data than: ${ last_date }? ${ this._existsDataOlderThan(last_date) }`);
 
@@ -144,14 +148,10 @@ class ChatpalSearchService {
 	start() {
 		this.enabled = Chatpal.Backend.enabled;
 
-		console.log('start search service', Chatpal.Backend);
+		console.log('start search service');
 
-		if (this.enabled && Chatpal.Backend.refresh) {
-			this.indexer = new ChatpalIndexer();
-		} else if (this.indexer) {
-			this.indexer.continue();
-		} else {
-			this.indexer = new ChatpalIndexer();//TODO reindex when restart rocketchat?
+		if (this.enabled) {
+			this.indexer = new ChatpalIndexer(Chatpal.Backend.refresh);
 		}
 	}
 
@@ -195,14 +195,16 @@ class ChatpalSearchService {
 
 	_getQueryParameterString(text, page, /*filters*/) {
 		const pagesize = Chatpal.Backend.config.docs_per_page;
-		return `?q=${ encodeURIComponent(text) }&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
+		const query = `?q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&df=text_${ Chatpal.Backend.language }&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
+		console.info(query);
+		return query;
 	}
 
 	_alignResponse(result) {
 		const res = result.response;
 		res.docs.forEach(function(doc) {
 			if (result.highlighting && result.highlighting[doc.id]) {
-				doc.highlight_text = result.highlighting[doc.id].text[0];
+				doc.highlight_text = result.highlighting[doc.id][`text_${ Chatpal.Backend.language }`][0];
 			} else {
 				doc.highlight_text = doc.text;
 			}
@@ -214,9 +216,14 @@ class ChatpalSearchService {
 
 		const self = this;
 		HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ this._getQueryParameterString(text, page, filters) }`, Chatpal.Backend.httpOptions, (err, data) => {
+
 			if (err) {
-				callback(err);
-			} else if (data.statusCode === 200) {
+				if (err.response.statusCode === 400) {
+					callback({status:err.response.statusCode, msg:'error-chatpal-bad-query'});
+				} else {
+					callback({status:err.response.statusCode, msg:'error-chatpal-request-failed'});
+				}
+			} else {
 				const result = this._alignResponse(JSON.parse(data.content));
 				SystemLogger.debug(JSON.stringify(data, '', 2));
 
@@ -224,16 +231,15 @@ class ChatpalSearchService {
 
 				result.docs.forEach(function(doc) {
 					doc.user_data = self._getUserData(doc.user);
-					doc.date_strings = self._getDateStrings(doc.date);
+					doc.date_strings = self._getDateStrings(doc.created);
 					doc.subscription = self._getSubscription(doc.room, user._id);
 				});
 
 				result.pageSize = Chatpal.Backend.config.docs_per_page;
 
 				callback(null, result);
-			} else {
-				callback(data);
 			}
+
 		});
 	}
 
@@ -258,13 +264,19 @@ class ChatpalSearchService {
 
 	index(m) {
 		if (this.enabled) {
-			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, Chatpal.Backend.httpOptions, {data:{
+			const data = {data:{
 				id: m._id,
 				room: m.rid,
-				text: m.msg,
 				user: m.u._id,
-				date: m._updatedAt
-			}});
+				created: m.ts,
+				updated: m._updatedAt
+			}};
+
+			data.data[`text_${ Chatpal.Backend.language }`] = m.msg;
+
+			_.extend(data, Chatpal.Backend.httpOptions);
+
+			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, data);
 		}
 	}
 

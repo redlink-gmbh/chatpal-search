@@ -1,3 +1,5 @@
+import toastr from 'toastr';
+
 Template.ChatpalSearch.onCreated(function() {
 
 	this.pattern = new RegExp('^((create-channel)|(account)|(admin.*)|(mailer)|(emoji-custom)|(custom-sounds))$');
@@ -6,6 +8,7 @@ Template.ChatpalSearch.onCreated(function() {
 	this.result = new ReactiveVar;
 	this.loading = new ReactiveVar(false);
 	this.showResults = new ReactiveVar(false);
+	this.badRequest = new ReactiveVar(false);
 
 	this.autorun(() => {
 		const routeName = FlowRouter.getRouteName();
@@ -27,6 +30,7 @@ Template.ChatpalSearch.onRendered(function() {
 
 		this.result.set(null);
 		this.loading.set(true);
+		this.badRequest.set(false);
 
 		this.showResults.set(true);
 
@@ -34,8 +38,11 @@ Template.ChatpalSearch.onRendered(function() {
 			$('.flex-tab__content').scrollTop(0);
 			this.loading.set(false);
 			if (err) {
-				console.log('querying failed');
-				this.enabled.set(false);
+				if (err.reason.status === 400) {
+					this.badRequest.set(err.reason.msg);
+				} else {
+					this.enabled.set(false);
+				}
 			} else {
 				this.enabled.set(true);
 				this.result.set(res);
@@ -100,6 +107,10 @@ Template.ChatpalSearch.helpers({
 
 	enabled() {
 		return Template.instance().enabled.get();
+	},
+
+	badRequest() {
+		return Template.instance().badRequest.get();
 	},
 
 	showResults() {
