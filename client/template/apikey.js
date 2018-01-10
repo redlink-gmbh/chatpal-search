@@ -29,3 +29,10 @@ Template.ChatpalApiKey.events({
 		FlowRouter.go('/admin/chatpal', {}, {key, type});
 	}
 });
+
+//template
+Template.ChatpalApiKey.helpers({
+	template() {
+		return TAPi18n.__('CHATPAL_TEMPLATE_TAC');
+	}
+});
