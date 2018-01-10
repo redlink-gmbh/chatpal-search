@@ -8,8 +8,6 @@ const moment = Npm.require('moment');
 class ChatpalIndexer {
 
 	constructor(clear) {
-		this.baseUrl = Chatpal.Backend.baseurl;
-		this.language = Chatpal.Backend.language || 'none';//TODO
 		this._messages = RocketChat.models.Messages.model;
 		if (clear) {
 			this._clear();
@@ -264,7 +262,7 @@ class ChatpalSearchService {
 	search(text, page, filters) {
 		const fut = new Future();
 
-		SystemLogger.info('chatpal search: ', this.baseUrl, text, page, filters);
+		SystemLogger.info('chatpal search: ', Chatpal.Backend.baseurl, text, page, filters, Chatpal.Backend.httpOptions);
 
 		const bound_callback = Meteor.bindEnvironment(function(err, res) {
 			if (err) {

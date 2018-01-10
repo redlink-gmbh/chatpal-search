@@ -27,7 +27,13 @@ Meteor.methods({
 		if (!Chatpal.Backend.enabled) { throw new Error('cannot enable chatpal backend'); }
 
 		//make settings
-		RocketChat.models.Settings.updateValueById('CHATPAL_CONFIG', config);
+		//check if config already exists
+		const settings = RocketChat.models.Settings.findById('CHATPAL_CONFIG').fetch();console.log(settings);
+		if (settings && settings.length>0) {
+			RocketChat.models.Settings.updateValueById('CHATPAL_CONFIG', config);
+		} else {
+			RocketChat.models.Settings.createWithIdAndValue('CHATPAL_CONFIG', config);
+		}
 
 		//start all services
 		Object.keys(Chatpal.service).forEach((key) => {

@@ -65,10 +65,10 @@
 					<div class="input-line">
 						<label>{{_ "CHATPAL_TERM_LANGUAGE"}}</label>
 						<div>
-							<select value="{{config.language}}" autocomplete="off" name="language">
-								<option value="none">{{_ "CHATPAL_TERM_LANGUAGE_NONE"}}</option>
-								<option value="de">{{_ "CHATPAL_TERM_LANGUAGE_DE"}}</option>
-								<option value="en">{{_ "CHATPAL_TERM_LANGUAGE_EN"}}</option>
+							<select name="language">
+								<option selected="{{$eq config.language "none"}}" value="none">{{_ "CHATPAL_TERM_LANGUAGE_NONE"}}</option>
+								<option selected="{{$eq config.language "de"}}" value="de">{{_ "CHATPAL_TERM_LANGUAGE_DE"}}</option>
+								<option selected="{{$eq config.language "en"}}" value="en">{{_ "CHATPAL_TERM_LANGUAGE_EN"}}</option>
 							</select>
 						</div>
 					</div>

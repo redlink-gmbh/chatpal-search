@@ -34,6 +34,7 @@ Meteor.startup(() => {
 		}
 	});
 	*/
+	//TODO add message fetch with SyncedCron
 });
 
 Inject.rawBody('chatpal-icons', Assets.getText('server/asset/chatpal-icons.svg'));
