@@ -10,7 +10,8 @@ Template.ChatpalAdmin.onCreated(function() {
 		timeformat: 'H:mm A',
 		language: 'none',
 		batchsize: 24,
-		timeout: 10000
+		timeout: 10000,
+		headerstring: ''
 	});
 
 	Meteor.call('chatpal.config.get', (err, config) => {
@@ -46,20 +47,42 @@ Template.ChatpalAdmin.onCreated(function() {
 		}
 	};
 
+	this.parseHeaders = (header_string) => {
+		const headers = {};
+		const sh = header_string.split('\n');
+		sh.forEach(function(d) {
+			const ds = d.split(':');
+			if (ds.length !== 2 || ds[0].trim() === '') {
+				throw new Error();
+			}
+			headers[ds[0]] = ds[1];
+		});
+		return headers;
+	};
+
 	this.save = (config) => {
 		//check preconditions
-		if (config.backendtype === 'onsite' && (!config.baseurl || !config.baseurl.match(/^https?:\/\/.+/))) { return toastr.error(TAPi18n.__('error-chatpal-baseurl-not-valid')); }
+		if (config.backendtype === 'onsite' && (!config.baseurl || !config.baseurl.match(/^https?:\/\/.+/))) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_BASEURL_NOT_VALID')); }
 
-		if (config.backendtype === 'cloud' && (!config.apikey || !this.validated.get())) { return toastr.error(TAPi18n.__('error-chatpal-apikey-not-valid')); }
+		if (config.backendtype === 'cloud' && (!config.apikey || !this.validated.get())) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CONFIG_CANNOT_BE_STORED')); }
+
+		if (config.backendtype === 'onsite') {
+			try {
+				//parse headers
+				config.headers = (config.headerstring && config.headerstring.trim() !== '') ? this.parseHeaders(config.headerstring.trim()) : {};
+			} catch (e) {
+				return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_HEADERS_ARE_NOT_WELL_FORMATED'));
+			}
+		}
 
 		//store config
 		Meteor.call('chatpal.config.set', config, (err) => {
 			if (err) {
 				console.error(err);
-				return toastr.error(TAPi18n.__('error-chatpal-config-cannot-be-stored'));
+				return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_APIKEY_NOT_VALID'));
 			}
 
-			toastr.info(TAPi18n.__('info-chatpal-config-stored-successfull'));
+			toastr.info(TAPi18n.__('CHATPAL_MSG_INFO_CONFIG_STORED_SUCCESSFULLY'));
 		});
 	};
 
@@ -67,7 +90,7 @@ Template.ChatpalAdmin.onCreated(function() {
 
 Template.ChatpalAdmin.events({
 	'submit form'(e, t) {
-		e.preventDefault();console.log(e.target.baseurl);
+		e.preventDefault();
 		t.save({
 			backendtype: t.config.get().backendtype,
 			baseurl: e.target.baseurl ? e.target.baseurl.value : undefined,
@@ -77,7 +100,8 @@ Template.ChatpalAdmin.events({
 			timeformat: (e.target.timeformat.value && e.target.timeformat.value !== '') ? e.target.timeformat.value : t.config.get().timeformat,
 			language: e.target.language.value,
 			batchsize: e.target.batchsize.value || t.config.get().batchsize,
-			timeout: e.target.timeout.value || t.config.get().timeout
+			timeout: e.target.timeout.value || t.config.get().timeout,
+			headerstring:  e.target.headerstring.value
 		});
 	},
 	'change .chatpal-admin-type'(e, t) {

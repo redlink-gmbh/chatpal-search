@@ -28,6 +28,17 @@
 							</small>
 						</div>
 					</div>
+					<div class="input-line">
+						<label>{{_ "CHATPAL_TERM_HEADERS"}}</label>
+						<div>
+							<textarea class="chatpal-admin-textarea" type="text" value="{{config.headerstring}}" name="headerstring"></textarea>
+						</div>
+						<div>
+							<small class="settings-description secondary-font-color">
+								{{_ "CHATPAL_TERM_HEADERS_DESC"}}
+							</small>
+						</div>
+					</div>
 				{{/if}}
 				{{#if $eq config.backendtype 'cloud'}}
 					<div class="input-line">

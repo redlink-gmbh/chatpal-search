@@ -219,9 +219,9 @@ class ChatpalSearchService {
 
 			if (err) {
 				if (err.response.statusCode === 400) {
-					callback({status:err.response.statusCode, msg:'error-chatpal-bad-query'});
+					callback({status:err.response.statusCode, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_BAD_QUERY'});
 				} else {
-					callback({status:err.response.statusCode, msg:'error-chatpal-request-failed'});
+					callback({status:err.response.statusCode, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_FAILED'});
 				}
 			} else {
 				const result = this._alignResponse(JSON.parse(data.content));
@@ -242,25 +242,6 @@ class ChatpalSearchService {
 
 		});
 	}
-
-	/*
-	static get _httpOptions() { //TODO
-		const options = {
-			headers: Chatpal.Backend.headers
-		};
-
-		const authToken = RocketChat.settings.get('CHATPAL_AUTH_TOKEN');
-		if (authToken) {
-			options.headers['X-Auth-Token'] = authToken;
-		}
-
-		const basicAuth = RocketChat.settings.get('CHATPAL_BASIC_AUTH');
-		if (basicAuth) {
-			options.auth = basicAuth;
-		}
-
-		return options;
-	}*/
 
 	index(m) {
 		if (this.enabled) {

@@ -45,13 +45,14 @@ export class ChatpalBackend {
 			this.updatepath = '/update/json/docs';
 			this.pingpath = '/search?q=*:*&rows=0&facet=false';
 			this.clearpath = '/update?stream.body=<delete><query>*:*</query></delete>&commit=true';
-			this.headers = config.headers || {};
 			this.httpOptions = {
-				headers: config.headers || {}
+				headers: config.headers
 			};
 		}
 
 		this.enabled = config ? this._ping() : false;
+
+		console.log(this);
 	}
 
 	_ping() {

@@ -257,3 +257,9 @@
 	overflow-y: scroll;
 	margin: 0 !important;
 }
+
+.chatpal-admin-textarea {
+	width: 100%;
+	resize: none;
+	height: 100px;
+}

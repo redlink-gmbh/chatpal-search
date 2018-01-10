@@ -16,15 +16,15 @@ Template.ChatpalApiKey.events({
 		const email = e.target.email.value;
 		const tac = e.target.readtac.checked;
 
-		if (!tac) { return toastr.error(TAPi18n.__('chatpal-error-tac-must-be-checked')); }
-		if (!email || email === '') { return toastr.error(TAPi18n.__('chatpal-error-email-must-be-set')); }
-		if (!t.validateEmail(email)) { return toastr.error(TAPi18n.__('chatpal-error-email-must-be-valid')); }
+		if (!tac) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_TAC_MUST_BE_CHECKED')); }
+		if (!email || email === '') { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_EMAIL_MUST_BE_SET')); }
+		if (!t.validateEmail(email)) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_EMAIL_MUST_BE_VALID')); }
 
 		//TODO register
 		const key = '123';
 		const type = 'cloud';
 
-		toastr.info(TAPi18n.__('chatpal-info-key-created'));
+		toastr.info(TAPi18n.__('CHATPAL_MSG_KEY_CREATED_SUCCESSFULLY'));
 
 		FlowRouter.go('/admin/chatpal', {}, {key, type});
 	}
