@@ -35,7 +35,7 @@ class ChatpalIndexer {
 
 	_index(last_date) {
 
-		logger && logger.debug(`Chatpal: Index ${ last_date.toLocaleString() }`);
+		logger && logger.debug(`Chatpal: Index ${ new Date(last_date).toISOString() }`);
 
 		const report = {
 			start_date: last_date,
@@ -96,7 +96,7 @@ class ChatpalIndexer {
 			Meteor.setTimeout(() => {
 				this.report = this._index(last_date);
 
-				logger && logger.info('Indexed:', this.report);
+				logger && logger.info(`Indexed ${ this.report.number } messages from ${ new Date(this.report.last_date).toISOString() } to ${ new Date(this.report.start_date).toISOString() }`);
 
 				this._run(this.report.last_date, fut);
 
