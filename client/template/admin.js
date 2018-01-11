@@ -47,6 +47,21 @@ Template.ChatpalAdmin.onCreated(function() {
 		}
 	};
 
+	this.renewKey = (apikey) => {
+		Meteor.call('chatpal.utils.renewkey', apikey, (err, key) => {
+			if (err) {
+				console.error(err);
+				toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CANNOT_RENEW_KEY'));
+			} else if (key) {
+				const config = this.config.get();
+				config.apikey = key;
+				this.config.set(config);
+			} else {
+				toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CANNOT_RENEW_KEY'));
+			}
+		});
+	};
+
 	this.parseHeaders = (header_string) => {
 		const headers = {};
 		const sh = header_string.split('\n');
@@ -101,8 +116,12 @@ Template.ChatpalAdmin.events({
 			language: e.target.language.value,
 			batchsize: e.target.batchsize.value || t.config.get().batchsize,
 			timeout: e.target.timeout.value || t.config.get().timeout,
-			headerstring:  e.target.headerstring.value
+			headerstring:  e.target.headerstring ? e.target.headerstring.value : undefined
 		});
+	},
+	'click .chatpal-newkey'(e, t) {
+		e.preventDefault();
+		t.renewKey($(e.currentTarget).parent().find('input').val());
 	},
 	'change .chatpal-admin-type'(e, t) {
 		const config = t.config.get();

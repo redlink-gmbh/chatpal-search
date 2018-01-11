@@ -8,7 +8,7 @@ Meteor.methods({
 	'chatpal.search.search'(text, page, filters) {
 		try {
 			return Chatpal.service.SearchService.search(text, page, filters);
-		} catch (e) {console.log(e);
+		} catch (e) {
 			throw new Meteor.Error("chatpal-error", e);
 		}
 	}
@@ -28,7 +28,7 @@ Meteor.methods({
 
 		//make settings
 		//check if config already exists
-		const settings = RocketChat.models.Settings.findById('CHATPAL_CONFIG').fetch();console.log(settings);
+		const settings = RocketChat.models.Settings.findById('CHATPAL_CONFIG').fetch();
 		if (settings && settings.length>0) {
 			RocketChat.models.Settings.updateValueById('CHATPAL_CONFIG', config);
 		} else {
@@ -51,6 +51,19 @@ Meteor.methods({
 
 Meteor.methods({
 	'chatpal.utils.validatekey'(key) {
-		return key === '123';//TODO
+		return Chatpal.Backend.validateKey(key);
 	}
 });
+
+Meteor.methods({
+	'chatpal.utils.createkey'(email) {
+		return Chatpal.Backend.generateKey(email);
+	}
+});
+
+Meteor.methods({
+	'chatpal.utils.renewkey'(key) {
+		return Chatpal.Backend.renewKey(key);
+	}
+});
+

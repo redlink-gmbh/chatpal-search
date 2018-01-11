@@ -1,7 +1,11 @@
-/* globals SystemLogger */
-
 import {Mongo} from 'meteor/mongo';
 import {Chatpal} from '../config/config';
+
+let logger;
+
+if (Meteor.isServer) {
+	logger = new Logger('ChatpalBotService', {});
+}
 
 class ChatpalBotService {
 
@@ -46,7 +50,7 @@ class ChatpalBotService {
 
 	sendMessage(bot, user, message, room) {
 
-		if (!this.baseUrl) { return console.log('Bot endpoint not conneced'); }
+		if (!this.baseUrl) { return logger && logger.warn('Bot endpoint not conneced'); }
 
 		this._botstatus_collection.update({user:user._id}, {user:user._id, bot}, {upsert:true}, () => {
 
@@ -63,7 +67,8 @@ class ChatpalBotService {
 			const response = HTTP.post(URL, {data:msg, headers:{'content-Type':'application/json; charset=utf-8'}});
 
 			if (response.statusCode === 200) {
-				SystemLogger.debug('Send cerbot request successfully:', JSON.stringify(response, null, 2));
+
+				logger.debug('Send cerbot request successfully:', JSON.stringify(response, null, 2));
 
 				const bot_user = Chatpal.service.BotService.getBotUser();
 
@@ -80,7 +85,7 @@ class ChatpalBotService {
 
 				});
 			} else {
-				SystemLogger.error('Sending cerbot request failed:', JSON.stringify(response, null, 2));
+				logger.debug('Sending cerbot request failed:', JSON.stringify(response, null, 2));
 			}
 
 		});

@@ -47,7 +47,8 @@ TAPi18n.loadTranslations({
 		CHATPAL_TERM_TERMS_AND_CONDITIONS: 'Terms and Conditions',
 		CHATPAL_TERM_TAC_READ: 'I have read the terms and conditions',
 		CHATPAL_TERM_CREATE_KEY: 'Create Key',
-		CHATPAL_TEMPLATE_TAC: 'ChatpalTaC_EN'
+		CHATPAL_TEMPLATE_TAC: 'ChatpalTaC_EN',
+		CHATPAL_MSG_ERROR_USERNAME_ALREADY_EXISTS: 'Account for email already exists'
 	},
 	de: {
 		CHATPAL: 'Chatpal',
@@ -97,6 +98,7 @@ TAPi18n.loadTranslations({
 		CHATPAL_TERM_TERMS_AND_CONDITIONS: 'Allgemeine Geschäftsbedingungen',
 		CHATPAL_TERM_TAC_READ: 'Ich habe die allgemeinen Geschäftsbedingungen gelesen',
 		CHATPAL_TERM_CREATE_KEY: 'Key erzeugen',
-		CHATPAL_TEMPLATE_TAC: 'ChatpalTaC_DE'
+		CHATPAL_TEMPLATE_TAC: 'ChatpalTaC_DE',
+		CHATPAL_MSG_ERROR_USERNAME_ALREADY_EXISTS: 'Account für diese Email Adresse existiert bereits'
 	}
 }, 'project');

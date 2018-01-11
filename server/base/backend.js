@@ -1,5 +1,6 @@
 export class ChatpalBackend {
 	constructor() {
+		this.chatpalBaseUrl = 'http://localhost:8080';//'https://api.chatpal.io';
 		this.init();
 	}
 
@@ -26,7 +27,7 @@ export class ChatpalBackend {
 
 		if (config && config.backendtype === 'cloud') {
 			this.backendtype = config.backendtype;
-			this.baseurl = 'https://api.chatpal.io';
+			this.baseurl = this.chatpalBaseUrl;
 			this.language = config.language;
 			this.searchpath = '/search/query';
 			this.updatepath = '/search/update';
@@ -52,15 +53,52 @@ export class ChatpalBackend {
 
 		this.enabled = config ? this._ping() : false;
 
-		console.log(this);
 	}
 
 	_ping() {
 		try {
 			const response = HTTP.call('GET', this.baseurl + this.pingpath, this.httpOptions);
-			return response.statusCode === 200;
+			return response.statusCode >= 200 && response.statusCode < 300;
 		} catch (e) {
-			console.error(e);
+			return false;
+		}
+	}
+
+	generateKey(email) {
+		try {
+			const response = HTTP.call('POST', `${ this.chatpalBaseUrl }/account`, {data:{email, tier:'free'}});
+			if (response.statusCode === 201) {
+				return response.data.key;
+			} else {
+				return false;
+			}
+		} catch (e) {
+			return false;
+		}
+	}
+
+	renewKey(key) {
+		try {
+			const response = HTTP.call('POST', `${ this.chatpalBaseUrl }/account/key`, {headers: {'X-Client-Key': key}});
+			if (response.statusCode === 201) {
+				return response.data.key;
+			} else {
+				return false;
+			}
+		} catch (e) {
+			return false;
+		}
+	}
+
+	validateKey(key) {
+		try {
+			const response = HTTP.call('GET', `${ this.chatpalBaseUrl }/account/key`, {headers: {'X-Client-Key': key}});
+			if (response.statusCode === 204) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (e) {
 			return false;
 		}
 	}

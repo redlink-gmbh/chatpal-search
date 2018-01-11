@@ -21,12 +21,21 @@ Template.ChatpalApiKey.events({
 		if (!t.validateEmail(email)) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_EMAIL_MUST_BE_VALID')); }
 
 		//TODO register
-		const key = '123';
-		const type = 'cloud';
+		try {
+			Meteor.call('chatpal.utils.createkey', email, (err, key) => {
+				if (!key) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_USERNAME_ALREADY_EXISTS')); }
 
-		toastr.info(TAPi18n.__('CHATPAL_MSG_KEY_CREATED_SUCCESSFULLY'));
+				const type = 'cloud';
 
-		FlowRouter.go('/admin/chatpal', {}, {key, type});
+				toastr.info(TAPi18n.__('CHATPAL_MSG_KEY_CREATED_SUCCESSFULLY'));
+
+				FlowRouter.go('/admin/chatpal', {}, {key, type});
+			});
+
+		} catch (e) {
+			console.log(e);
+			toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_USERNAME_ALREADY_EXISTS'));//TODO error messages
+		}
 	}
 });
 

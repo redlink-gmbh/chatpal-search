@@ -264,3 +264,7 @@
 	height: 100px;
 	border-radius: 5px;
 }
+
+.chatpal-api-key i {
+	margin-left: -25px;
+}

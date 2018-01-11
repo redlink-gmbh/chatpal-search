@@ -1,9 +1,14 @@
-/* globals SystemLogger */
 import {Chatpal} from '../base/backend.js';
 import _ from 'underscore';
 
 const Future = Npm.require('fibers/future');
 const moment = Npm.require('moment');
+
+let logger;
+
+if (Meteor.isServer) {
+	logger = new Logger('ChatpalSearchService', {});
+}
 
 class ChatpalIndexer {
 
@@ -24,13 +29,13 @@ class ChatpalIndexer {
 	}
 
 	_clear() {
-		console.debug('Chatpal: Clear Index');
+		logger && logger.debug('Chatpal: Clear Index');
 		HTTP.call('GET', Chatpal.Backend.baseurl + Chatpal.Backend.clearpath, Chatpal.Backend.httpOptions);
 	}
 
 	_index(last_date) {
 
-		console.debug(`Chatpal: Index ${ last_date }`);
+		logger && logger.debug(`Chatpal: Index ${ last_date.toLocaleString() }`);
 
 		const report = {
 			start_date: last_date,
@@ -91,16 +96,16 @@ class ChatpalIndexer {
 			Meteor.setTimeout(() => {
 				this.report = this._index(last_date);
 
-				console.log('Indexed:', this.report);
+				logger && logger.info('Indexed:', this.report);
 
 				this._run(this.report.last_date, fut);
 
 			}, Chatpal.Backend.config.timeout);
 		} else if (this._break) {
-			console.log('Chatpal: stopped bootstrap');
+			logger && logger.info('Chatpal: stopped bootstrap');
 			fut.return();
 		} else {
-			console.log('Chatpal: finished bootstrap');
+			logger && logger.info('Chatpal: finished bootstrap');
 			fut.return();
 		}
 	}
@@ -109,7 +114,6 @@ class ChatpalIndexer {
 		const result = HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }?q=*:*&rows=1&sort=created%20asc`, Chatpal.Backend.httpOptions);
 
 		if (result.data.response.numFound > 0) {
-			console.log(result.data.response.docs[0].created);
 			return new Date(result.data.response.docs[0].created).valueOf();
 		} else {
 			return new Date().valueOf();
@@ -118,13 +122,11 @@ class ChatpalIndexer {
 
 	bootstrap() {
 
-		console.debug('Chatpal: bootstrap');
+		logger && logger.info('Chatpal: bootstrap');
 
 		const fut = new Future();
 
 		const last_date = this._getlastdate();
-
-		console.log(`exists older data than: ${ last_date }? ${ this._existsDataOlderThan(last_date) }`);
 
 		this._run(last_date, fut);
 
@@ -146,7 +148,7 @@ class ChatpalSearchService {
 	start() {
 		this.enabled = Chatpal.Backend.enabled;
 
-		console.log('start search service');
+		logger && logger.info('start search service');
 
 		if (this.enabled) {
 			this.indexer = new ChatpalIndexer(Chatpal.Backend.refresh);
@@ -193,9 +195,7 @@ class ChatpalSearchService {
 
 	_getQueryParameterString(text, page, /*filters*/) {
 		const pagesize = Chatpal.Backend.config.docs_per_page;
-		const query = `?q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&df=text_${ Chatpal.Backend.language }&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
-		console.info(query);
-		return query;
+		return `?q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&df=text_${ Chatpal.Backend.language }&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
 	}
 
 	_alignResponse(result) {
@@ -213,7 +213,12 @@ class ChatpalSearchService {
 	_searchAsync(text, page, filters, callback) {
 
 		const self = this;
-		HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ this._getQueryParameterString(text, page, filters) }`, Chatpal.Backend.httpOptions, (err, data) => {
+
+		const query = `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ this._getQueryParameterString(text, page, filters) }`;
+
+		logger && logger.debug(`query: ${ query }`, Chatpal.Backend.httpOptions);
+
+		HTTP.call('GET', query, Chatpal.Backend.httpOptions, (err, data) => {
 
 			if (err) {
 				if (err.response.statusCode === 400) {
@@ -223,7 +228,6 @@ class ChatpalSearchService {
 				}
 			} else {
 				const result = this._alignResponse(JSON.parse(data.content));
-				SystemLogger.debug(JSON.stringify(data, '', 2));
 
 				const user = Meteor.user();
 
@@ -261,8 +265,6 @@ class ChatpalSearchService {
 
 	search(text, page, filters) {
 		const fut = new Future();
-
-		SystemLogger.info('chatpal search: ', Chatpal.Backend.baseurl, text, page, filters, Chatpal.Backend.httpOptions);
 
 		const bound_callback = Meteor.bindEnvironment(function(err, res) {
 			if (err) {

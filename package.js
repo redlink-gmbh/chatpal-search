@@ -13,7 +13,8 @@ Package.onUse(function(api) {
 		'rocketchat:lib',
 		'kadira:flow-router',
 		'http',
-		'meteorhacks:inject-initial'
+		'meteorhacks:inject-initial',
+		'rocketchat:logger'
 	]);
 
 	api.addFiles('server/asset/pal.png', 'server', {isAsset:true});

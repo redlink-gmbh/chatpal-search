@@ -45,7 +45,12 @@
 						<label>{{_ "CHATPAL_TERM_API_KEY"}}</label>
 						<div class="chatpal-api-key">
 							<input type="text" value="{{config.apikey}}" class="chatpal-api-key-input" autocomplete="off" name="apikey">
-							<button disabled="{{$not validated}}" class="button primary send"><span>{{_ "CHATPAL_TERM_REFRESH_KEY"}}</span></button>
+							{{#if $not validated}}
+								<i class="icon-attention"></i>
+							{{else}}
+								<i class="icon-ok"></i>
+							{{/if}}
+							<button disabled="{{$not validated}}" class="button primary chatpal-newkey"><span>{{_ "CHATPAL_TERM_REFRESH_KEY"}}</span></button>
 							<div style="clear: both"></div>
 						</div>
 						{{#if $not validated}}
