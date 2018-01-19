@@ -58,6 +58,11 @@
 						{{/if}}
 					{{/if}}
 					{{/if}}
+					{{#if $not resultsFoundForAllSearch}}
+						<div class="chatpal-search-result-header">
+							<h2>{{_ "CHATPAL_SEARCH_NO_RESULTS"}}</h2>
+						</div>
+						{{/if}}
 				</div>
 				{{/if}}
 				{{#if $eq resultType "Messages"}}

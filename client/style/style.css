@@ -63,7 +63,7 @@
 .chatpal-search-result{
 	overflow:scroll;
 	flex:1 1 auto;
-	height: calc(100vh - 80px);
+	height: calc(100vh - 135px);
 	background-color: #f1f1f1;
 }
 
@@ -143,6 +143,7 @@
 	color: #286ca8;
 	text-align: center;
 	cursor: pointer;
+	margin-bottom: 20px;
 }
 
 .chatpal-show-more-messages:hover {
@@ -323,7 +324,7 @@
 }
 
 .chatpal-search-typefilter {
-
+	/*border-bottom: 1px solid #f1f1f1;*/
 }
 
 .chatpal-search-typefilter li {

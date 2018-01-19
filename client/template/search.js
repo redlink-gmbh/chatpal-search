@@ -120,7 +120,7 @@ Template.ChatpalSearch.helpers({
 
 	numOfMessagesMoreThanPageSize() {
 		const result = Template.instance().result.get();
-		if (result && result.messages) {console.log( result.messages);
+		if (result && result.messages) {
 			return result.messages.numFound > parseInt(result.messages.pageSize);
 		}
 	},
@@ -134,6 +134,11 @@ Template.ChatpalSearch.helpers({
 				default: return TAPi18n.__('CHATPAL_SEARCH_RESULTS', result.numFound);
 			}
 		}
+	},
+
+	resultsFoundForAllSearch() {
+		const result = Template.instance().result.get();
+		return result && (result.messages || result.users);
 	},
 
 	resultPaging() {
