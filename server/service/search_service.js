@@ -20,17 +20,80 @@ class ChatpalIndexer {
 		this.bootstrap();
 	}
 
+	static getIndexMessageDocument(m) {
+		const doc = {
+			id: `m_${ m._id }`,
+			room: m.rid,
+			user: m.u._id,
+			created: m.ts,
+			updated: m._updatedAt,
+			type: 'CHATPAL_RESULT_TYPE_MESSAGE'
+		};
+
+		doc[`text_${ Chatpal.Backend.language }`] = m.msg;
+
+		return doc;
+	}
+
+	static getIndexUserDocument(u) {
+		return {
+			id: `u_${ u._id }`,
+			created: u.createdAt,
+			updated: u._updatedAt,
+			type: 'CHATPAL_RESULT_TYPE_USER',
+			user_username: u.username,
+			user_name: u.name,
+			user_email: _.map(u.emails, (e) => { return e.address; })
+		};
+	}
+
 	_listMessages(start_date, end_date, start, rows) {
-		return this._messages.find({ts:{$gt: new Date(start_date), $lt: new Date(end_date)}}, {skip:start, limit:rows}).fetch();
+		return this._messages.find({ts:{$gt: new Date(start_date), $lt: new Date(end_date)}, t:{$exists:false}}, {skip:start, limit:rows}).fetch();
 	}
 
 	_existsDataOlderThan(date) {
-		return this._messages.find({_updatedAt:{$lt: new Date(date)}}, {limit:1}).fetch().length > 0;
+		return this._messages.find({_updatedAt:{$lt: new Date(date)}, t:{$exists:false}}, {limit:1}).fetch().length > 0;
 	}
 
 	_clear() {
 		logger && logger.debug('Chatpal: Clear Index');
-		HTTP.call('GET', Chatpal.Backend.baseurl + Chatpal.Backend.clearpath, Chatpal.Backend.httpOptions);
+
+		const options = {data:{
+			delete: {
+				query: '*:*'
+			},
+			commit:{}
+		}};
+
+		_.extend(options, Chatpal.Backend.httpOptions);
+
+		HTTP.call('POST', Chatpal.Backend.baseurl + Chatpal.Backend.clearpath, options);
+	}
+
+	_indexUsers() {
+
+		logger && logger.debug('Chatpal: Index Users');
+
+		const limit = 100;
+		let skip = 0;
+		const users = [];
+		do {
+			const users = Meteor.users.find({}, {sort:{createdAt:1}, limit, skip}).fetch();
+			skip += limit;
+
+			const userDocs = [];
+
+			users.forEach((u) => {
+				userDocs.push(ChatpalIndexer.getIndexUserDocument(u));
+			});
+
+			const options = {data:userDocs};
+
+			_.extend(options, Chatpal.Backend.httpOptions);
+
+			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
+
+		} while (users.length > 0);
 	}
 
 	_index(last_date) {
@@ -55,26 +118,14 @@ class ChatpalIndexer {
 			if (messages.length > 0) {
 
 				messages.forEach(function(m) {
-					const doc = {
-						id: m._id,
-						room: m.rid,
-						user: m.u._id,
-						created: m.ts,
-						updated: m._updatedAt
-					};
-
-					doc[`text_${ Chatpal.Backend.language }`] = m.msg;
-
-					solrDocs.push(doc);
+					solrDocs.push(ChatpalIndexer.getIndexMessageDocument(m));
 				});
 
+				const options = {data:solrDocs};
 
+				_.extend(options, Chatpal.Backend.httpOptions);
 
-				const data = {data:solrDocs};
-
-				_.extend(data, Chatpal.Backend.httpOptions);
-
-				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }?`, data);
+				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
 
 				report.number += messages.length;
 
@@ -105,6 +156,10 @@ class ChatpalIndexer {
 			logger && logger.info('Chatpal: stopped bootstrap');
 			fut.return();
 		} else {
+
+			//index users
+			this._indexUsers();
+
 			logger && logger.info('Chatpal: finished bootstrap');
 			fut.return();
 		}
@@ -193,30 +248,76 @@ class ChatpalSearchService {
 		return rooms.length > 0 ? `&fq=room:(${ rooms.map(room => room.rid).join(' OR ') })` : '';
 	}
 
-	_getQueryParameterString(text, page, /*filters*/) {
+	_getGroupAccessFiler(user) {
+		const rooms = RocketChat.models.Subscriptions.find({'u._id': user._id}).fetch();
+		return rooms.length > 0 ? `&fq=(type:CHATPAL_RESULT_TYPE_USER OR room:(${ rooms.map(room => room.rid).join(' OR ') }))` : '';
+	}
+
+	_getQueryParameterStringForMessages(text, page, /*filters*/) {
 		const pagesize = Chatpal.Backend.config.docs_per_page;
-		return `?q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&df=text_${ Chatpal.Backend.language }&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
+		return `?q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&fq=type:CHATPAL_RESULT_TYPE_MESSAGE&qf=text_${ Chatpal.Backend.language }^2 text&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
+	}
+
+	_getQueryParameterStringForAll(text, /*filters*/) {
+		const pagesize = Chatpal.Backend.config.docs_per_page;
+		return `?q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&qf=text_${ Chatpal.Backend.language }^2 text&group=true&group.field=type&sort=if(termfreq(type,'CHATPAL_RESULT_TYPE_USER'),2,if(termfreq(type,'CHATPAL_RESULT_TYPE_MESSAGE'),1,0)) desc&group.sort=created desc&group.limit=${ pagesize }${ this._getGroupAccessFiler(Meteor.user()) }`;
 	}
 
 	_alignResponse(result) {
 		const res = result.response;
-		res.docs.forEach(function(doc) {
-			if (result.highlighting && result.highlighting[doc.id]) {
+		const user = Meteor.user();
+
+		res.docs.forEach((doc) => {
+			if (result.highlighting && result.highlighting[doc.id] && result.highlighting[doc.id][`text_${ Chatpal.Backend.language }`]) {
 				doc.highlight_text = result.highlighting[doc.id][`text_${ Chatpal.Backend.language }`][0];
 			} else {
 				doc.highlight_text = doc.text;
 			}
+
+			doc.id = doc.id.substring(2);
+			doc.user_data = this._getUserData(doc.user);
+			doc.date_strings = this._getDateStrings(doc.created);
+			doc.subscription = this._getSubscription(doc.room, user._id);
+
 		});
+
+		res.pageSize = Chatpal.Backend.config.docs_per_page;
+
 		return res;
 	}
 
-	_searchAsync(text, page, filters, callback) {
+	_alignUserResponse(result) {
+		const response = {numFound:result.numFound, docs:[]};
 
-		const self = this;
+		result.docs.forEach((doc) => {
+			response.docs.push(this._getUserData(doc.id.substring(2)));
+		});
 
-		const query = `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ this._getQueryParameterString(text, page, filters) }`;
+		return response;
+	}
 
-		logger && logger.debug(`query: ${ query }`, Chatpal.Backend.httpOptions);
+	_alignGroupedResponse(result) {
+		const response = {};
+
+		result.grouped.type.groups.forEach((group) => {
+			if (group.groupValue === 'CHATPAL_RESULT_TYPE_USER') {
+				response.users = this._alignUserResponse(group.doclist);
+			}
+			if (group.groupValue === 'CHATPAL_RESULT_TYPE_MESSAGE') {
+				response.messages = this._alignResponse({
+					response:group.doclist,
+					highlighting:result.highlighting
+				});
+			}
+		});
+		return response;
+	}
+
+	_searchAsyncMessages(text, page, filters, callback) {
+
+		const query = `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ this._getQueryParameterStringForMessages(text, page, filters) }`;
+
+		logger && logger.debug(`query messages: ${ query }`, Chatpal.Backend.httpOptions);
 
 		HTTP.call('GET', query, Chatpal.Backend.httpOptions, (err, data) => {
 
@@ -229,15 +330,28 @@ class ChatpalSearchService {
 			} else {
 				const result = this._alignResponse(JSON.parse(data.content));
 
-				const user = Meteor.user();
+				callback(null, result);
+			}
 
-				result.docs.forEach(function(doc) {
-					doc.user_data = self._getUserData(doc.user);
-					doc.date_strings = self._getDateStrings(doc.created);
-					doc.subscription = self._getSubscription(doc.room, user._id);
-				});
+		});
+	}
 
-				result.pageSize = Chatpal.Backend.config.docs_per_page;
+	_searchAsyncAll(text, page, filters, callback) {
+
+		const query = `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ this._getQueryParameterStringForAll(text, page, filters) }`;
+
+		logger && logger.debug(`query messages: ${ query }`, Chatpal.Backend.httpOptions);
+
+		HTTP.call('GET', query, Chatpal.Backend.httpOptions, (err, data) => {
+
+			if (err) {
+				if (err.response.statusCode === 400) {
+					callback({status:err.response.statusCode, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_BAD_QUERY'});
+				} else {
+					callback({status:err.response.statusCode, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_FAILED'});
+				}
+			} else {
+				const result = this._alignGroupedResponse(JSON.parse(data.content));
 
 				callback(null, result);
 			}
@@ -247,23 +361,43 @@ class ChatpalSearchService {
 
 	index(m) {
 		if (this.enabled) {
-			const data = {data:{
-				id: m._id,
-				room: m.rid,
-				user: m.u._id,
-				created: m.ts,
-				updated: m._updatedAt
-			}};
 
-			data.data[`text_${ Chatpal.Backend.language }`] = m.msg;
+			const options = {data:ChatpalIndexer.getIndexMessageDocument(m)};
 
-			_.extend(data, Chatpal.Backend.httpOptions);
+			_.extend(options, Chatpal.Backend.httpOptions);
 
-			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, data);
+			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
 		}
 	}
 
-	search(text, page, filters) {
+	getStatistics() {
+		if (this.enabled) {
+			const q = '?q=*:*&rows=0&wt=json&facet=true&facet.range=created&facet=true&facet.range.start=NOW/DAY-1MONTHS&facet.range.end=NOW/DAY&facet.range.gap=+1DAYS&facet.field=type';
+
+			const response = HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ q }`, Chatpal.Backend.httpOptions);
+
+			console.log(response);
+
+			return response.data;
+		}
+	}
+
+	remove(m) {
+		if (this.enabled) {
+			logger && logger.debug('Chatpal: Remove Message', m);
+
+			const options = {data:{
+				delete: `m_${ m._id }`,
+				commit: {}
+			}};
+
+			_.extend(options, Chatpal.Backend.httpOptions);
+
+			HTTP.call('POST', Chatpal.Backend.baseurl + Chatpal.Backend.clearpath, options);
+		}
+	}
+
+	search(text, page, type = 'All', filters) {
 		const fut = new Future();
 
 		const bound_callback = Meteor.bindEnvironment(function(err, res) {
@@ -275,7 +409,7 @@ class ChatpalSearchService {
 		});
 
 		if (this.enabled) {
-			this._searchAsync(text, page, filters, bound_callback);
+			this[`_searchAsync${ type }`](text, page, filters, bound_callback);
 		} else {
 			bound_callback('backend is currently not enabled');
 		}
@@ -295,4 +429,9 @@ Chatpal.service.SearchService = new ChatpalSearchService();
  */
 RocketChat.callbacks.add('afterSaveMessage', function(m) {
 	Chatpal.service.SearchService.index(m);
+});
+
+RocketChat.callbacks.add('afterDeleteMessage', function(m) {
+	console.log(123, m);
+	Chatpal.service.SearchService.remove(m);
 });

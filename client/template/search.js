@@ -10,6 +10,8 @@ Template.ChatpalSearch.onCreated(function() {
 	this.showResults = new ReactiveVar(false);
 	this.badRequest = new ReactiveVar(false);
 
+	this.resultType = new ReactiveVar('All');
+
 	this.autorun(() => {
 		const routeName = FlowRouter.getRouteName();
 		if (this.pattern.test(routeName)) {
@@ -26,15 +28,17 @@ Template.ChatpalSearch.onRendered(function() {
 
 	this.text = undefined;
 
-	this.search = () => {
+	this.search = (type) => {
 
 		this.result.set(null);
 		this.loading.set(true);
 		this.badRequest.set(false);
 
+		if (type) { this.resultType.set(type); }
+
 		this.showResults.set(true);
 
-		Meteor.call('chatpal.search.search', this.text, this.page, [], (err, res) => {
+		Meteor.call('chatpal.search.search', this.text, this.page, this.resultType.get(), [], (err, res) => {
 			$('.flex-tab__content').scrollTop(0);
 			this.loading.set(false);
 			if (err) {
@@ -69,6 +73,12 @@ Template.ChatpalSearch.events = {
 	'click .chatpal-paging-next'(env, t) {
 		t.page += 1;
 		t.search();
+	},
+	'click .chatpal-search-typefilter li'(evt, t) {
+		t.search(evt.currentTarget.getAttribute('value'));
+	},
+	'click .chatpal-show-more-messages'(evt, t) {
+		t.search('Messages');
 	}
 };
 
@@ -77,6 +87,41 @@ Template.ChatpalSearch.helpers({
 		const result = Template.instance().result.get();
 		if (result) {
 			return result.docs;
+		}
+	},
+
+	resultMessageDocs() {
+		const result = Template.instance().result.get();
+		if (result && result.messages) {
+			return result.messages.docs;
+		}
+	},
+
+	resultUserDocs() {
+		const result = Template.instance().result.get();
+		if (result && result.users) {
+			return result.users.docs;
+		}
+	},
+
+	numOfUsersFound() {
+		const result = Template.instance().result.get();
+		if (result && result.users) {
+			return result.users.numFound;
+		}
+	},
+
+	numOfMessagesFound() {
+		const result = Template.instance().result.get();
+		if (result && result.messages) {
+			return result.messages.numFound;
+		}
+	},
+
+	numOfMessagesMoreThanPageSize() {
+		const result = Template.instance().result.get();
+		if (result && result.messages) {console.log( result.messages);
+			return result.messages.numFound > parseInt(result.messages.pageSize);
 		}
 	},
 
@@ -107,6 +152,14 @@ Template.ChatpalSearch.helpers({
 
 	enabled() {
 		return Template.instance().enabled.get();
+	},
+
+	navSelected(type) {
+		return Template.instance().resultType.get() === type ? 'selected' : '';
+	},
+
+	resultType() {
+		return Template.instance().resultType.get();
 	},
 
 	badRequest() {

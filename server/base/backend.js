@@ -31,21 +31,21 @@ export class ChatpalBackend {
 			this.language = config.language;
 			this.searchpath = '/search/query';
 			this.updatepath = '/search/update';
-			this.pingpath = '/account/key';
+			this.pingpath = '/search/ping';
 			this.clearpath = '/search/clear';
 			this.httpOptions = {
 				headers: {
-					'X-Client-Key': config.apikey
+					'X-Api-Key': config.apikey
 				}
 			};
 		} else if (config && config.backendtype === 'onsite') {
 			this.backendtype = config.backendtype;
 			this.baseurl = config.baseurl.endsWith('/') ? config.baseurl.slice(0, -1) : config.baseurl;
 			this.language = config.language;
-			this.searchpath = '/search';
-			this.updatepath = '/update/json/docs';
-			this.pingpath = '/search?q=*:*&rows=0&facet=false';
-			this.clearpath = '/update?stream.body=<delete><query>*:*</query></delete>&commit=true';
+			this.searchpath = '/chatpal/search';
+			this.updatepath = '/chatpal/update';
+			this.pingpath = '/chatpal/ping';
+			this.clearpath = '/chatpal/clear';
 			this.httpOptions = {
 				headers: config.headers
 			};
@@ -79,7 +79,7 @@ export class ChatpalBackend {
 
 	renewKey(key) {
 		try {
-			const response = HTTP.call('POST', `${ this.chatpalBaseUrl }/account/key`, {headers: {'X-Client-Key': key}});
+			const response = HTTP.call('POST', `${ this.chatpalBaseUrl }/account/key`, {headers: {'X-Api-Key': key}});
 			if (response.statusCode === 201) {
 				return response.data.key;
 			} else {
@@ -92,7 +92,7 @@ export class ChatpalBackend {
 
 	validateKey(key) {
 		try {
-			const response = HTTP.call('GET', `${ this.chatpalBaseUrl }/account/key`, {headers: {'X-Client-Key': key}});
+			const response = HTTP.call('GET', `${ this.chatpalBaseUrl }/account/key`, {headers: {'X-Api-Key': key}});
 			if (response.statusCode === 204) {
 				return true;
 			} else {

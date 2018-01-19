@@ -51,9 +51,8 @@
 
 
 .chatpal-search-container h1 {
-	padding: 20px 10px;
+	padding: 20px 10px 10px;
 	font-size: 18px;
-	border-bottom: 1px solid #eee;
 }
 
 .chatpal-search-input {
@@ -102,6 +101,60 @@
 	margin-bottom: 10px;
 	min-height: 92px;
 	position: relative;
+}
+
+.chatpal-search-result-user {
+	background-color: white;
+	padding: 10px;
+	border-radius: 5px;
+	border: 1px solid #e6e6e6;
+	margin-bottom: 10px;
+	min-height: 40px;
+	position: relative;
+}
+
+.chatpal-search-result-user .chatpal-avatar {
+	width: 36px;
+	height: 36px;
+	position: absolute;
+}
+
+.chatpal-search-result-user .chatpal-avatar .chatpal-avatar-image {
+	background-repeat: no-repeat;
+	background-size: contain;
+	width: 100%;
+	height: 100%;
+}
+
+.chatpal-search-result-user h2 {
+	padding-left: 45px;
+	margin-bottom: 5px;
+}
+
+.chatpal-search-result-user .direct-message {
+	padding-left: 45px;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.chatpal-show-more-messages {
+	font-size: 14px;
+	font-weight: bold;
+	color: #286ca8;
+	text-align: center;
+	cursor: pointer;
+}
+
+.chatpal-show-more-messages:hover {
+	text-decoration: underline;
+}
+
+.chatpal-search-result-user .direct-message a {
+	color: #286ca8;
+}
+
+.chatpal-search-result-user .direct-message a:hover {
+	text-decoration: underline;
 }
 
 .chatpal-search-result-single h2 {
@@ -268,3 +321,23 @@
 .chatpal-api-key i {
 	margin-left: -25px;
 }
+
+.chatpal-search-typefilter {
+
+}
+
+.chatpal-search-typefilter li {
+	cursor: pointer;
+	display: inline-block;
+	width: 49%;/*WHY? Fix*/
+	border-bottom: 4px solid white;
+	height: 35px;
+	text-align: center;
+	padding-top: 10px;
+}
+
+.chatpal-search-typefilter li.selected {
+	border-bottom: 4px solid #286ca8;
+}
+
+
