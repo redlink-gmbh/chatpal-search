@@ -259,12 +259,12 @@ class ChatpalSearchService {
 
 	_getQueryParameterStringForMessages(text, page, /*filters*/) {
 		const pagesize = Chatpal.Backend.config.docs_per_page;
-		return `?q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&fq=type:CHATPAL_RESULT_TYPE_MESSAGE&qf=text_${ Chatpal.Backend.language }^2 text&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
+		return `q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&fq=type:CHATPAL_RESULT_TYPE_MESSAGE&qf=text_${ Chatpal.Backend.language }^2 text&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
 	}
 
 	_getQueryParameterStringForAll(text, /*filters*/) {
 		const pagesize = Chatpal.Backend.config.docs_per_page;
-		return `?q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&qf=text_${ Chatpal.Backend.language }^2 text&group=true&group.field=type&sort=if(termfreq(type,'CHATPAL_RESULT_TYPE_USER'),2,if(termfreq(type,'CHATPAL_RESULT_TYPE_MESSAGE'),1,0)) desc&group.sort=score desc&group.limit=${ pagesize }${ this._getGroupAccessFiler(Meteor.user()) }`;
+		return `q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&qf=text_${ Chatpal.Backend.language }^2 text&group=true&group.field=type&sort=if(termfreq(type,'CHATPAL_RESULT_TYPE_USER'),2,if(termfreq(type,'CHATPAL_RESULT_TYPE_MESSAGE'),1,0)) desc&group.sort=score desc&group.limit=${ pagesize }${ this._getGroupAccessFiler(Meteor.user()) }`;
 	}
 
 	_alignResponse(result) {
