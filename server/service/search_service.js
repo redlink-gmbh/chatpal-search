@@ -319,11 +319,15 @@ class ChatpalSearchService {
 
 	_searchAsyncMessages(text, page, filters, callback) {
 
-		const query = `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ this._getQueryParameterStringForMessages(text, page, filters) }`;
+		const options = {
+			content: `${ this._getQueryParameterStringForMessages(text, page, filters) }`
+		};
 
-		logger && logger.debug(`query messages: ${ query }`, Chatpal.Backend.httpOptions);
+		_.extend(options, Chatpal.Backend.httpOptions);
 
-		HTTP.call('GET', query, Chatpal.Backend.httpOptions, (err, data) => {
+		logger && logger.debug('query messages:', options);
+
+		HTTP.call('POST', Chatpal.Backend.baseurl + Chatpal.Backend.searchpath, options, (err, data) => {
 
 			if (err) {
 				if (err.response.statusCode === 400) {
@@ -342,11 +346,15 @@ class ChatpalSearchService {
 
 	_searchAsyncAll(text, page, filters, callback) {
 
-		const query = `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ this._getQueryParameterStringForAll(text, page, filters) }`;
+		const options = {
+			content: `${ this._getQueryParameterStringForAll(text, page, filters) }`
+		};
 
-		logger && logger.debug(`query messages: ${ query }`, Chatpal.Backend.httpOptions);
+		_.extend(options, Chatpal.Backend.httpOptions);
 
-		HTTP.call('GET', query, Chatpal.Backend.httpOptions, (err, data) => {
+		logger && logger.debug('query messages:', options);
+
+		HTTP.call('POST', Chatpal.Backend.baseurl + Chatpal.Backend.searchpath, options, (err, data) => {
 
 			if (err) {
 				if (err.response.statusCode === 400) {

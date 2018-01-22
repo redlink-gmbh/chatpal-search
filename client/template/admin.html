@@ -1,12 +1,31 @@
 <template name="ChatpalAdmin">
 	<div class="section">
-		<h2>
-			{{> icon block="chatpal-header-icon" icon="chatpal"}}
-			<span>{{_ "CHATPAL_TERM_INDEX"}}</span>
+		<h2 class="chatpal-admin-header">
+			<div class="chatpal-admin-header-icon">
+				{{> icon block="chatpal-header-icon" icon="chatpal"}}
+			</div>
+			<div>{{_ "CHATPAL_TERM_INDEX"}}</div>
 		</h2>
+		<div class="chatpal-info-box">
+			<h3>Users</h3>
+			<div class="chatpal-info-box-number">13</div>
+		</div>
+		<div class="chatpal-info-box">
+			<h3>Messages</h3>
+			<div class="chatpal-info-box-number">13</div>
+		</div>
+		<div class="chatpal-info-box">
+			<h3>Messages (last 30 days)</h3>
+			<div class="chatpal-info-box-number">13</div>
+		</div>
 	</div>
 	<div class="section">
-		<h2>{{_ "CHATPAL_TERM_CONFIGURATION"}}</h2>
+		<h2 class="chatpal-admin-header">
+			<div class="chatpal-admin-header-icon">
+				{{> icon block="chatpal-header-icon" icon="chatpal"}}
+			</div>
+			<div>{{_ "CHATPAL_TERM_CONFIGURATION"}}</div>
+		</h2>
 		<form>
 			<div class="rocket-form">
 				<h3>{{_ "CHATPAL_CONFIG_BACKEND"}}</h3>

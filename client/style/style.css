@@ -341,4 +341,15 @@
 	border-bottom: 4px solid #286ca8;
 }
 
+.chatpal-admin-header {
+	font-size: 18px;
+}
 
+.chatpal-admin-header div {
+	display: inline-block;
+}
+
+.chatpal-admin-header-icon {
+	top: 3px;
+	position: relative;
+}
