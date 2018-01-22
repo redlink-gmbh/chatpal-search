@@ -25,6 +25,16 @@ Meteor.methods({
 });
 
 Meteor.methods({
+	'chatpal.utils.reindex'() {
+		try {
+			return Chatpal.service.SearchService.reindex();
+		} catch (e) {
+			throw new Meteor.Error("chatpal-error", e);
+		}
+	}
+});
+
+Meteor.methods({
 	'chatpal.config.set'(config) {
 		//stop all services
 		Object.keys(Chatpal.service).forEach((key) => {

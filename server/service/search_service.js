@@ -13,11 +13,19 @@ if (Meteor.isServer) {
 class ChatpalIndexer {
 
 	constructor(clear) {
+		this.running = true;
 		this._messages = RocketChat.models.Messages.model;
 		if (clear) {
 			this._clear();
 		}
 		this.bootstrap();
+	}
+
+	reindex() {
+		if(!this.running) {
+			this._clear();
+			this.bootstrap();
+		}
 	}
 
 	static getIndexMessageDocument(m) {
@@ -147,6 +155,9 @@ class ChatpalIndexer {
 	}
 
 	_run(last_date, fut) {
+
+		this.running = true;
+
 		if (this._existsDataOlderThan(last_date) && !this._break) {
 			Meteor.setTimeout(() => {
 				this.report = this._index(last_date);
@@ -158,6 +169,7 @@ class ChatpalIndexer {
 			}, Chatpal.Backend.config.timeout);
 		} else if (this._break) {
 			logger && logger.info('Chatpal: stopped bootstrap');
+			this.running = false;
 			fut.return();
 		} else {
 
@@ -165,6 +177,9 @@ class ChatpalIndexer {
 			this._indexUsers();
 
 			logger && logger.info('Chatpal: finished bootstrap');
+
+			this.running = false;
+
 			fut.return();
 		}
 	}
@@ -393,15 +408,37 @@ class ChatpalSearchService {
 		}
 	}
 
+	reindex() {
+		if (this.enabled) {
+			this.indexer.reindex();
+		}
+	}
+
 	getStatistics() {
 		if (this.enabled) {
-			const q = '?q=*:*&rows=0&wt=json&facet=true&facet.range=created&facet=true&facet.range.start=NOW/DAY-1MONTHS&facet.range.end=NOW/DAY&facet.range.gap=+1DAYS&facet.field=type';
+			const q = '?q=*:*&rows=0&wt=json&facet=true&facet.range=created&facet=true&facet.range.start=NOW/DAY-1MONTHS&facet.range.end=NOW/DAY&facet.range.gap=%2B1DAYS&facet.field=type';
 
 			const response = HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ q }`, Chatpal.Backend.httpOptions);
 
-			console.log(response);
+			const stats = {
+				enabled: true,
+				numbers: {
+					messages: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_MESSAGE) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_MESSAGE : 0,
+					users: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_USER) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_USER : 0
+				},
+				chart: [],
+				running: this.indexer.running
+			};
 
-			return response.data;
+			const chart_result = response.data.facet_counts.facet_ranges.created.counts;
+
+			Object.keys(chart_result).forEach(function(date) {
+				stats.chart.push([new Date(date),chart_result[date]])
+			});
+
+			return stats;
+		} else {
+			return {enabled:false}
 		}
 	}
 

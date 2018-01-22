@@ -14,6 +14,11 @@ Template.ChatpalAdmin.onCreated(function() {
 		headerstring: ''
 	});
 
+	this.messagesIndexed = new ReactiveVar(0);
+	this.usersIndexed = new ReactiveVar(0);
+	this.indexingRunning = new ReactiveVar(false);
+	this.enabled = new ReactiveVar(false);
+
 	Meteor.call('chatpal.config.get', (err, config) => {
 		//overwrite default settings
 		if (!err && config) {
@@ -27,6 +32,25 @@ Template.ChatpalAdmin.onCreated(function() {
 		//check if existing key is valid
 		this.validate(this.config.get().apikey);
 	});
+
+	this.getStats = () => {
+		Meteor.call('chatpal.search.stats', (err, stats) => {
+			if(err) console.error(err);
+
+			if(!stats.enabled) {
+				this.enabled.set(false);
+			} else {
+				this.enabled.set(true);
+				this.messagesIndexed.set(stats.numbers.messages);
+				this.usersIndexed.set(stats.numbers.users);
+				this.indexingRunning.set(stats.running);
+			}
+
+			Meteor.setTimeout(() => {
+				this.getStats();
+			}, 5000);
+		});
+	};
 
 	/**
 	 * Test if an apikey is valid
@@ -45,6 +69,18 @@ Template.ChatpalAdmin.onCreated(function() {
 				}
 			});
 		}
+	};
+
+	this.reindex = () => {
+
+		this.indexingRunning.set(true);
+
+		Meteor.call('chatpal.utils.reindex', (err) => {
+			if (err) {
+				console.error(err);
+				toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CANNOT_REINDEX'));
+			}
+		});
 	};
 
 	this.renewKey = (apikey) => {
@@ -101,6 +137,8 @@ Template.ChatpalAdmin.onCreated(function() {
 		});
 	};
 
+	this.getStats();
+
 });
 
 Template.ChatpalAdmin.events({
@@ -123,6 +161,10 @@ Template.ChatpalAdmin.events({
 		e.preventDefault();
 		t.renewKey($(e.currentTarget).parent().find('input').val());
 	},
+	'click .reindex'(e, t) {
+		e.preventDefault();
+		t.reindex();
+	},
 	'change .chatpal-admin-type'(e, t) {
 		const config = t.config.get();
 		config.backendtype = e.currentTarget.value;
@@ -139,5 +181,17 @@ Template.ChatpalAdmin.helpers({
 	},
 	validated() {
 		return Template.instance().validated.get();
+	},
+	numOfUsers() {
+		return Template.instance().usersIndexed.get();
+	},
+	numOfMessages() {
+		return Template.instance().messagesIndexed.get();
+	},
+	indexingRunning() {
+		return Template.instance().indexingRunning.get();
+	},
+	enabled() {
+		return Template.instance().enabled.get();
 	}
 });

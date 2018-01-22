@@ -353,3 +353,9 @@
 	top: 3px;
 	position: relative;
 }
+
+.chatpal-info-box {
+	margin-right: 20px;
+	text-align: center;
+	display: inline-block;
+}
