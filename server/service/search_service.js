@@ -91,7 +91,9 @@ class ChatpalIndexer {
 
 			_.extend(options, Chatpal.Backend.httpOptions);
 
-			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
+			const response = HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
+
+			logger && logger.debug(`index ${ userDocs.length } users`, Chatpal.Backend.httpOptions, response);
 
 		} while (users.length > 0);
 	}
@@ -125,7 +127,9 @@ class ChatpalIndexer {
 
 				_.extend(options, Chatpal.Backend.httpOptions);
 
-				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
+				const response = HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
+
+				logger && logger.debug(`index ${ solrDocs.length } messages`, Chatpal.Backend.httpOptions, response);
 
 				report.number += messages.length;
 
@@ -260,7 +264,7 @@ class ChatpalSearchService {
 
 	_getQueryParameterStringForAll(text, /*filters*/) {
 		const pagesize = Chatpal.Backend.config.docs_per_page;
-		return `?q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&qf=text_${ Chatpal.Backend.language }^2 text&group=true&group.field=type&sort=if(termfreq(type,'CHATPAL_RESULT_TYPE_USER'),2,if(termfreq(type,'CHATPAL_RESULT_TYPE_MESSAGE'),1,0)) desc&group.sort=created desc&group.limit=${ pagesize }${ this._getGroupAccessFiler(Meteor.user()) }`;
+		return `?q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&qf=text_${ Chatpal.Backend.language }^2 text&group=true&group.field=type&sort=if(termfreq(type,'CHATPAL_RESULT_TYPE_USER'),2,if(termfreq(type,'CHATPAL_RESULT_TYPE_MESSAGE'),1,0)) desc&group.sort=score desc&group.limit=${ pagesize }${ this._getGroupAccessFiler(Meteor.user()) }`;
 	}
 
 	_alignResponse(result) {
@@ -370,6 +374,17 @@ class ChatpalSearchService {
 		}
 	}
 
+	indexUser(u) {
+		if (this.enabled) {
+
+			const options = {data:ChatpalIndexer.getIndexUserDocument(u)};
+
+			_.extend(options, Chatpal.Backend.httpOptions);
+
+			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
+		}
+	}
+
 	getStatistics() {
 		if (this.enabled) {
 			const q = '?q=*:*&rows=0&wt=json&facet=true&facet.range=created&facet=true&facet.range.start=NOW/DAY-1MONTHS&facet.range.end=NOW/DAY&facet.range.gap=+1DAYS&facet.field=type';
@@ -432,6 +447,18 @@ RocketChat.callbacks.add('afterSaveMessage', function(m) {
 });
 
 RocketChat.callbacks.add('afterDeleteMessage', function(m) {
-	console.log(123, m);
 	Chatpal.service.SearchService.remove(m);
 });
+
+RocketChat.callbacks.add('afterCreateUser', function(u){
+	console.log(123,u);
+	Chatpal.service.SearchService.indexUser(u);
+});
+
+RocketChat.callbacks.add('usernameSet', (u) => {
+	console.log(234,u);
+});
+/*
+* RocketChat.callbacks.add('afterCreateChannel'/roomTopicChanged/archiveRoom all iun function trackEvent(category, action, label) {
+*
+*/
