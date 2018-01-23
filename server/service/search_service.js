@@ -277,7 +277,7 @@ class ChatpalSearchService {
 
 	_getAccessFiler(user) {
 		const rooms = RocketChat.models.Subscriptions.find({'u._id': user._id}).fetch();
-		return rooms.length > 0 ? `room:(${ rooms.map(room => room.rid).join(' OR ') })` : '';
+		return rooms.length > 0 ? `type:CHATPAL_RESULT_TYPE_MESSAGE AND room:(${ rooms.map(room => room.rid).join(' OR ') })` : 'type:CHATPAL_RESULT_TYPE_MESSAGE';
 	}
 
 	_getGroupAccessFiler(user) {
@@ -290,7 +290,7 @@ class ChatpalSearchService {
 		return {
 			q:text,
 			'hl.fl':'text_'+Chatpal.Backend.language,
-			'fq': ['type:CHATPAL_RESULT_TYPE_MESSAGE', this._getAccessFiler(Meteor.user())],
+			'fq': this._getAccessFiler(Meteor.user()),
 			qf:'text_' + Chatpal.Backend.language + '^2 text',
 			start:(page-1)*pagesize,
 			rows: pagesize
@@ -307,7 +307,7 @@ class ChatpalSearchService {
 			sort:"if(termfreq(type,'CHATPAL_RESULT_TYPE_USER'),2,if(termfreq(type,'CHATPAL_RESULT_TYPE_MESSAGE'),1,0)) desc",
 			'group.sort':'score desc',
 			'group.limit': Chatpal.Backend.config.docs_per_page,
-			fq:[this._getGroupAccessFiler(Meteor.user())]
+			fq:this._getGroupAccessFiler(Meteor.user())
 		}
 	}
 
