@@ -6,6 +6,8 @@ Template.ChatpalAdmin.onDestroyed(function() {
 
 Template.ChatpalAdmin.onCreated(function() {
 
+	this.loadingConfig = new ReactiveVar(true);
+
 	this.validated = new ReactiveVar(false);
 	this.config = new ReactiveVar({
 		backendtype:'cloud',
@@ -31,6 +33,8 @@ Template.ChatpalAdmin.onCreated(function() {
 			config.backendtype = this.data.type() || config.backendtype;
 
 			this.config.set(config);
+
+			this.loadingConfig.set(false);
 		}
 
 		//check if existing key is valid
@@ -201,5 +205,8 @@ Template.ChatpalAdmin.helpers({
 	},
 	enabled() {
 		return Template.instance().enabled.get();
+	},
+	loadingConfig() {
+		return Template.instance().loadingConfig.get();
 	}
 });

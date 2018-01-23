@@ -301,7 +301,7 @@ class ChatpalSearchService {
 	_alignResponse(result) {
 		const res = result.response;
 		const user = Meteor.user();
-
+console.log(res);
 		res.docs.forEach((doc) => {
 			if (result.highlighting && result.highlighting[doc.id] && result.highlighting[doc.id][`text_${ Chatpal.Backend.language }`]) {
 				doc.highlight_text = result.highlighting[doc.id][`text_${ Chatpal.Backend.language }`][0];
