@@ -264,12 +264,12 @@ class ChatpalSearchService {
 
 	_getAccessFiler(user) {
 		const rooms = RocketChat.models.Subscriptions.find({'u._id': user._id}).fetch();
-		return rooms.length > 0 ? `&fq=room:(${ rooms.map(room => room.rid).join(' OR ') })` : '';
+		return rooms.length > 0 ? `room:(${ rooms.map(room => room.rid).join(' OR ') })` : '';
 	}
 
 	_getGroupAccessFiler(user) {
 		const rooms = RocketChat.models.Subscriptions.find({'u._id': user._id}).fetch();
-		return rooms.length > 0 ? `&fq=(type:CHATPAL_RESULT_TYPE_USER OR room:(${ rooms.map(room => room.rid).join(' OR ') }))` : '';
+		return rooms.length > 0 ? `(type:CHATPAL_RESULT_TYPE_USER OR room:(${ rooms.map(room => room.rid).join(' OR ') }))` : '';
 	}
 
 	_getQueryParameterStringForMessages(text, page, /*filters*/) {
