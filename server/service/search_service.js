@@ -185,7 +185,18 @@ class ChatpalIndexer {
 	}
 
 	_getlastdate() {
-		const result = HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }?q=*:*&rows=1&sort=created%20asc`, Chatpal.Backend.httpOptions);
+		const options = {
+			params: {
+				q:'*:*',
+				rows:1,
+				sort:'created asc',
+				type: 'CHATPAL_RESULT_TYPE_MESSAGE'
+			}
+		};
+
+		_.extend(options, Chatpal.Backend.httpOptions);
+
+		const result = HTTP.call('POST', Chatpal.Backend.baseurl + Chatpal.Backend.searchpath, options);
 
 		if (result.data.response.numFound > 0) {
 			return new Date(result.data.response.docs[0].created).valueOf();
@@ -301,7 +312,7 @@ class ChatpalSearchService {
 	_alignResponse(result) {
 		const res = result.response;
 		const user = Meteor.user();
-console.log(res);
+
 		res.docs.forEach((doc) => {
 			if (result.highlighting && result.highlighting[doc.id] && result.highlighting[doc.id][`text_${ Chatpal.Backend.language }`]) {
 				doc.highlight_text = result.highlighting[doc.id][`text_${ Chatpal.Backend.language }`][0];
