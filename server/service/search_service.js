@@ -15,16 +15,12 @@ class ChatpalIndexer {
 	constructor(clear) {
 		this.running = true;
 		this._messages = RocketChat.models.Messages.model;
-		if (clear) {
-			this._clear();
-		}
-		this.bootstrap();
+		this.bootstrap(clear);
 	}
 
 	reindex() {
 		if(!this.running) {
-			this._clear();
-			this.bootstrap();
+			this.bootstrap(true);
 		}
 	}
 
@@ -205,13 +201,19 @@ class ChatpalIndexer {
 		}
 	}
 
-	bootstrap() {
+	bootstrap(clear) {
 
 		logger && logger.info('Chatpal: bootstrap');
 
 		const fut = new Future();
 
-		const last_date = this._getlastdate();
+		let last_date = new Date();
+
+		if(clear) {
+			this._clear();
+		} else {
+			last_date = this._getlastdate();
+		}
 
 		this._run(last_date, fut);
 
