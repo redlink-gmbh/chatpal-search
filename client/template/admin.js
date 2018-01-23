@@ -1,5 +1,9 @@
 import toastr from 'toastr';
 
+Template.ChatpalAdmin.onDestroyed(function() {
+	Meteor.clearTimeout(this.timeout);
+});
+
 Template.ChatpalAdmin.onCreated(function() {
 
 	this.validated = new ReactiveVar(false);
@@ -46,7 +50,7 @@ Template.ChatpalAdmin.onCreated(function() {
 				this.indexingRunning.set(stats.running);
 			}
 
-			Meteor.setTimeout(() => {
+			this.timeout = Meteor.setTimeout(() => {
 				this.getStats();
 			}, 5000);
 		});
@@ -92,6 +96,7 @@ Template.ChatpalAdmin.onCreated(function() {
 				const config = this.config.get();
 				config.apikey = key;
 				this.config.set(config);
+				this.save(config);
 			} else {
 				toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CANNOT_RENEW_KEY'));
 			}
@@ -112,6 +117,9 @@ Template.ChatpalAdmin.onCreated(function() {
 	};
 
 	this.save = (config) => {
+
+		this.indexingRunning.set(true);
+
 		//check preconditions
 		if (config.backendtype === 'onsite' && (!config.baseurl || !config.baseurl.match(/^https?:\/\/.+/))) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_BASEURL_NOT_VALID')); }
 
