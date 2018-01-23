@@ -274,12 +274,28 @@ class ChatpalSearchService {
 
 	_getQueryParameterStringForMessages(text, page, /*filters*/) {
 		const pagesize = Chatpal.Backend.config.docs_per_page;
-		return `q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&fq=type:CHATPAL_RESULT_TYPE_MESSAGE&qf=text_${ Chatpal.Backend.language }^2 text&start=${ (page-1)*pagesize }&rows=${ pagesize }${ this._getAccessFiler(Meteor.user()) }`;
+		return {
+			q:text,
+			'hl.fl':'text_'+Chatpal.Backend.language,
+			'fq': ['type:CHATPAL_RESULT_TYPE_MESSAGE', this._getAccessFiler(Meteor.user())],
+			qf:'text_' + Chatpal.Backend.language + '^2 text',
+			start:(page-1)*pagesize,
+			rows: pagesize
+		}
 	}
 
 	_getQueryParameterStringForAll(text, /*filters*/) {
-		const pagesize = Chatpal.Backend.config.docs_per_page;
-		return `q=${ encodeURIComponent(text) }&hl.fl=text_${ Chatpal.Backend.language }&qf=text_${ Chatpal.Backend.language }^2 text&group=true&group.field=type&sort=if(termfreq(type,'CHATPAL_RESULT_TYPE_USER'),2,if(termfreq(type,'CHATPAL_RESULT_TYPE_MESSAGE'),1,0)) desc&group.sort=score desc&group.limit=${ pagesize }${ this._getGroupAccessFiler(Meteor.user()) }`;
+		return {
+			q:text,
+			'hl.fl':'text_' + Chatpal.Backend.language,
+			qf:'text_' + Chatpal.Backend.language + '^2 text',
+			group:true,
+			'group.field':'type',
+			sort:"if(termfreq(type,'CHATPAL_RESULT_TYPE_USER'),2,if(termfreq(type,'CHATPAL_RESULT_TYPE_MESSAGE'),1,0)) desc",
+			'group.sort':'score desc',
+			'group.limit': Chatpal.Backend.config.docs_per_page,
+			fq:[this._getGroupAccessFiler(Meteor.user())]
+		}
 	}
 
 	_alignResponse(result) {
@@ -335,7 +351,7 @@ class ChatpalSearchService {
 	_searchAsyncMessages(text, page, filters, callback) {
 
 		const options = {
-			content: `${ this._getQueryParameterStringForMessages(text, page, filters) }`
+			params: this._getQueryParameterStringForMessages(text, page, filters)
 		};
 
 		_.extend(options, Chatpal.Backend.httpOptions);
@@ -362,7 +378,7 @@ class ChatpalSearchService {
 	_searchAsyncAll(text, page, filters, callback) {
 
 		const options = {
-			content: `${ this._getQueryParameterStringForAll(text, page, filters) }`
+			params: this._getQueryParameterStringForAll(text, page, filters)
 		};
 
 		_.extend(options, Chatpal.Backend.httpOptions);
@@ -416,9 +432,24 @@ class ChatpalSearchService {
 
 	getStatistics() {
 		if (this.enabled) {
-			const q = '?q=*:*&rows=0&wt=json&facet=true&facet.range=created&facet=true&facet.range.start=NOW/DAY-1MONTHS&facet.range.end=NOW/DAY&facet.range.gap=%2B1DAYS&facet.field=type';
 
-			const response = HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }${ q }`, Chatpal.Backend.httpOptions);
+			const options = {
+				params: {
+					q: '*:*',
+					rows: 0,
+					wt: 'json',
+					facet: true,
+					'facet.range': 'created',
+					'facet.range.start': 'NOW/DAY-1MONTHS',
+					'facet.range.end': 'NOW/DAY',
+					'facet.range.gap': '+1DAY',
+					'facet.field': 'type'
+				}
+			};
+
+			_.extend(options, Chatpal.Backend.httpOptions);
+
+			const response = HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }`, options);
 
 			const stats = {
 				enabled: true,
