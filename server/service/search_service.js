@@ -56,11 +56,11 @@ class ChatpalIndexer {
 	}
 
 	_existsDataOlderThan(date) {
-		return this._messages.find({_updatedAt:{$lt: new Date(date)}, t:{$exists:false}}, {limit:1}).fetch().length > 0;
+		return this._messages.find({ts:{$lt: new Date(date)}, t:{$exists:false}}, {limit:1}).fetch().length > 0;
 	}
 
 	_clear() {
-		logger && logger.debug('Chatpal: Clear Index');
+		logger && logger.debug('Clear Index');
 
 		const options = {data:{
 			delete: {
@@ -76,7 +76,7 @@ class ChatpalIndexer {
 
 	_indexUsers() {
 
-		logger && logger.debug('Chatpal: Index Users');
+		logger && logger.debug('Index Users');
 
 		const limit = 100;
 		let skip = 0;
@@ -104,7 +104,7 @@ class ChatpalIndexer {
 
 	_index(last_date) {
 
-		logger && logger.debug(`Chatpal: Index ${ new Date(last_date).toISOString() }`);
+		logger && logger.debug(`Index ${ new Date(last_date).toISOString() }`);
 
 		const report = {
 			start_date: last_date,
@@ -152,9 +152,10 @@ class ChatpalIndexer {
 
 	_run(last_date, fut) {
 
-		this.running = true;
+		this.running = true;console.log(this._existsDataOlderThan(last_date),last_date, this._break)
 
 		if (this._existsDataOlderThan(last_date) && !this._break) {
+
 			Meteor.setTimeout(() => {
 				this.report = this._index(last_date);
 
@@ -164,7 +165,7 @@ class ChatpalIndexer {
 
 			}, Chatpal.Backend.config.timeout);
 		} else if (this._break) {
-			logger && logger.info('Chatpal: stopped bootstrap');
+			logger && logger.info('stopped bootstrap');
 			this.running = false;
 			fut.return();
 		} else {
@@ -172,7 +173,7 @@ class ChatpalIndexer {
 			//index users
 			this._indexUsers();
 
-			logger && logger.info('Chatpal: finished bootstrap');
+			logger && logger.info('finished bootstrap');
 
 			this.running = false;
 
@@ -203,11 +204,11 @@ class ChatpalIndexer {
 
 	bootstrap(clear) {
 
-		logger && logger.info('Chatpal: bootstrap');
+		logger && logger.info('bootstrap');
 
 		const fut = new Future();
 
-		let last_date = new Date();
+		let last_date = new Date().valueOf();
 
 		if(clear) {
 			this._clear();
@@ -433,12 +434,31 @@ class ChatpalSearchService {
 
 			_.extend(options, Chatpal.Backend.httpOptions);
 
-			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
+			if(u.active) {
+				logger && logger.debug('Index User', u._id);
+
+				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
+			} else {
+				logger && logger.debug('Remove inactive User', u._id);
+
+				this.remove( u._id)
+			}
 		}
+	}
+
+	indexUserById(id) {
+		const u = Meteor.users.findOne(id);
+
+		logger && logger.debug('Index User by id', id);
+
+		if(u !== null) this.indexUser(u);
 	}
 
 	reindex() {
 		if (this.enabled) {
+
+			logger && logger.debug('Reindex');
+
 			this.indexer.reindex();
 		}
 	}
@@ -488,10 +508,10 @@ class ChatpalSearchService {
 
 	remove(m) {
 		if (this.enabled) {
-			logger && logger.debug('Chatpal: Remove Message', m);
+			logger && logger.debug('Remove document', m);
 
 			const options = {data:{
-				delete: `m_${ m._id }`,
+				delete: m,
 				commit: {}
 			}};
 
@@ -528,7 +548,7 @@ class ChatpalSearchService {
 Chatpal.service.SearchService = new ChatpalSearchService();
 
 /**
- * Add Hook
+ * Listen to message changes via Hooks
  * ========
  */
 RocketChat.callbacks.add('afterSaveMessage', function(m) {
@@ -536,18 +556,30 @@ RocketChat.callbacks.add('afterSaveMessage', function(m) {
 });
 
 RocketChat.callbacks.add('afterDeleteMessage', function(m) {
-	Chatpal.service.SearchService.remove(m);
+	Chatpal.service.SearchService.remove(`m_${ m._id }`);
 });
 
-RocketChat.callbacks.add('afterCreateUser', function(u){
-	console.log(123,u);
-	Chatpal.service.SearchService.indexUser(u);
-});
-
-RocketChat.callbacks.add('usernameSet', (u) => {
-	console.log(234,u);
-});
 /*
 * RocketChat.callbacks.add('afterCreateChannel'/roomTopicChanged/archiveRoom all iun function trackEvent(category, action, label) {
 *
 */
+
+/**
+ * Listen to user changes via cursor
+ * =================================
+ */
+const cursor = Meteor.users.find({}, {fields: {name:1, username:1, emails:1, active:1}});
+cursor.observeChanges({
+	added: (id) => {
+		logger && logger.debug('Added user', id);
+		Chatpal.service.SearchService.indexUserById(id);
+	},
+	changed: (id) => {
+		logger && logger.debug('Changed user', id);
+		Chatpal.service.SearchService.indexUserById(id);
+	},
+	removed: (id) => {
+		logger && logger.debug('Deleted user', id);
+		Chatpal.service.SearchService.remove(`u_${ id }`);
+	}
+});
