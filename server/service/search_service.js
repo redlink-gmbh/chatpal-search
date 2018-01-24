@@ -88,7 +88,9 @@ class ChatpalIndexer {
 			const userDocs = [];
 
 			users.forEach((u) => {
-				userDocs.push(ChatpalIndexer.getIndexUserDocument(u));
+				if(u.active) {
+					userDocs.push(ChatpalIndexer.getIndexUserDocument(u));
+				}
 			});
 
 			const options = {data:userDocs};
@@ -439,9 +441,9 @@ class ChatpalSearchService {
 
 				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
 			} else {
-				logger && logger.debug('Remove inactive User', u._id);
+				logger && logger.debug('Remove inactive User', `u_${ u._id }`);
 
-				this.remove( u._id)
+				this.remove(`u_${ u._id }`)
 			}
 		}
 	}
