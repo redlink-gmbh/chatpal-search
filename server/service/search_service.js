@@ -39,9 +39,23 @@ class ChatpalIndexer {
 		return doc;
 	}
 
+	static getIndexRoomDocument(r) {
+		return {
+			id: `u_${ r._id }`,
+			room: r._id,
+			created: r.createdAt,
+			updated: r.lm ? r.lm : r._updatedAt,
+			type: 'CHATPAL_RESULT_TYPE_ROOM',
+			room_name: r.name,
+			room_announcement: r.announcement,
+			room_description: r.description,
+			room_topic: r.topic
+		};
+	}
+
 	static getIndexUserDocument(u) {
 		return {
-			id: `u_${ u._id }`,
+			id: `r_${ u._id }`,
 			created: u.createdAt,
 			updated: u._updatedAt,
 			type: 'CHATPAL_RESULT_TYPE_USER',
@@ -104,6 +118,34 @@ class ChatpalIndexer {
 		} while (users.length > 0);
 	}
 
+	_indexRooms() {
+
+		logger && logger.debug('Index Rooms');
+
+		const limit = 100;
+		let skip = 0;
+		const rooms = [];
+		do {
+			const rooms = RocketChat.models.Rooms.find({t:{$ne:'d'}}, {sort:{createdAt:1}, limit, skip}).fetch();
+			skip += limit;
+
+			const roomDocs = [];
+
+			rooms.forEach((r) => {
+				roomDocs.push(ChatpalIndexer.getIndexRoomDocument(r));
+			});
+
+			const options = {data:roomDocs};
+
+			_.extend(options, Chatpal.Backend.httpOptions);
+
+			const response = HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
+
+			logger && logger.debug(`index ${ roomDocs.length } rooms`, Chatpal.Backend.httpOptions, response);
+
+		} while (rooms.length > 0);
+	}
+
 	_index(last_date) {
 
 		logger && logger.debug(`Index ${ new Date(last_date).toISOString() }`);
@@ -154,7 +196,7 @@ class ChatpalIndexer {
 
 	_run(last_date, fut) {
 
-		this.running = true;console.log(this._existsDataOlderThan(last_date),last_date, this._break)
+		this.running = true;
 
 		if (this._existsDataOlderThan(last_date) && !this._break) {
 
@@ -174,6 +216,8 @@ class ChatpalIndexer {
 
 			//index users
 			this._indexUsers();
+
+			this._indexRooms();
 
 			logger && logger.info('finished bootstrap');
 
@@ -266,6 +310,27 @@ class ChatpalSearchService {
 		}
 	}
 
+
+	_getRoomData(room_id) {
+		const user = Meteor.user();
+
+		const room = RocketChat.models.Rooms.findById(room_id).fetch();
+		if (room && room.length > 0) {
+			return {
+				id: room_id,
+				name: room[0].name,
+				subscription: this._getSubscription(room_id, user._id),
+				announcement: room[0].announcement,
+				description: room[0].description,
+				topic: room[0].topic
+			};
+		} else {
+			return {
+				name: 'Unknown'
+			};
+		}
+	}
+
 	_getSubscription(room_id, user_id) {
 		return RocketChat.models.Subscriptions.findOneByRoomIdAndUserId(room_id, user_id);
 	}
@@ -347,12 +412,25 @@ class ChatpalSearchService {
 		return response;
 	}
 
+	_alignRoomResponse(result) {
+		const response = {numFound:result.numFound, docs:[]};
+
+		result.docs.forEach((doc) => {
+			response.docs.push(this._getRoomData(doc.id.substring(2)));
+		});
+
+		return response;
+	}
+
 	_alignGroupedResponse(result) {
 		const response = {};
 
 		result.grouped.type.groups.forEach((group) => {
 			if (group.groupValue === 'CHATPAL_RESULT_TYPE_USER') {
 				response.users = this._alignUserResponse(group.doclist);
+			}
+			if (group.groupValue === 'CHATPAL_RESULT_TYPE_ROOM') {
+				response.rooms = this._alignRoomResponse(group.doclist);
 			}
 			if (group.groupValue === 'CHATPAL_RESULT_TYPE_MESSAGE') {
 				response.messages = this._alignResponse({
@@ -448,12 +526,33 @@ class ChatpalSearchService {
 		}
 	}
 
+	indexRoom(r) {
+		if (this.enabled) {
+
+			const options = {data:ChatpalIndexer.getIndexRoomDocument(u)};
+
+			_.extend(options, Chatpal.Backend.httpOptions);
+
+			logger && logger.debug('Index Room', r._id);
+
+			HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
+		}
+	}
+
 	indexUserById(id) {
 		const u = Meteor.users.findOne(id);
 
 		logger && logger.debug('Index User by id', id);
 
 		if(u !== null) this.indexUser(u);
+	}
+
+	indexRoomById(id) {
+		const r = RocketChat.models.Rooms.findOne(id);
+
+		logger && logger.debug('Index Room by id', id);
+
+		if(r !== null) this.indexRoom(r);
 	}
 
 	reindex() {
@@ -490,7 +589,8 @@ class ChatpalSearchService {
 				enabled: true,
 				numbers: {
 					messages: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_MESSAGE) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_MESSAGE : 0,
-					users: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_USER) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_USER : 0
+					users: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_USER) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_USER : 0,
+					rooms: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_ROOM) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_ROOM : 0
 				},
 				chart: [],
 				running: this.indexer.running
@@ -561,11 +661,6 @@ RocketChat.callbacks.add('afterDeleteMessage', function(m) {
 	Chatpal.service.SearchService.remove(`m_${ m._id }`);
 });
 
-/*
-* RocketChat.callbacks.add('afterCreateChannel'/roomTopicChanged/archiveRoom all iun function trackEvent(category, action, label) {
-*
-*/
-
 /**
  * Listen to user changes via cursor
  * =================================
@@ -585,3 +680,21 @@ cursor.observeChanges({
 		Chatpal.service.SearchService.remove(`u_${ id }`);
 	}
 });
+
+const cursor2 = RocketChat.models.Rooms.find({t:{$ne:'d'}}, {fields:{name:1, announcement:1, description:1, topic:1}});
+cursor2.observeChanges({
+	added: (id) => {
+		logger && logger.debug('Added room', id);
+		Chatpal.service.SearchService.indexRoomById(id);
+	},
+	changed: (id) => {
+		logger && logger.debug('Changed room', id);
+		Chatpal.service.SearchService.indexRoomById(id);
+	},
+	removed: (id) => {
+		logger && logger.debug('Deleted room', id);
+		Chatpal.service.SearchService.remove(`r_${ id }`);
+	}
+});
+
+

@@ -137,6 +137,10 @@
 	font-weight: bold;
 }
 
+.chatpal-search-result-user .chatpal-channel {
+	font-weight: bold;
+}
+
 .chatpal-show-more-messages {
 	font-size: 14px;
 	font-weight: bold;
@@ -358,4 +362,34 @@
 	margin-right: 20px;
 	text-align: center;
 	display: inline-block;
+}
+
+.chatpal-search-pills {
+	margin-top: 20px;
+}
+
+.chatpal-search-pills div {
+	background-color: #f1f1f1;
+	padding: 2px 5px;
+	display: inline-block;
+	margin-right: 5px;
+	border-radius: 3px;
+}
+
+.chatpal-search-result-room h2 {
+	padding-left: 0 !important;
+}
+
+.chatpal-search-result-room .chatpal-link {
+	display: none;
+	margin-left: 3px;
+	color: #286ca8;
+}
+
+.chatpal-search-result-room:hover .chatpal-link {
+	display: inline-block;
+}
+
+.chatpal-search-result-room .chatpal-link:hover{
+	text-decoration: underline;
 }

@@ -97,6 +97,13 @@ Template.ChatpalSearch.helpers({
 		}
 	},
 
+	resultRoomDocs() {
+		const result = Template.instance().result.get();console.log(123,result);
+		if (result && result.rooms) {
+			return result.rooms.docs;
+		}
+	},
+
 	resultUserDocs() {
 		const result = Template.instance().result.get();
 		if (result && result.users) {
@@ -108,6 +115,13 @@ Template.ChatpalSearch.helpers({
 		const result = Template.instance().result.get();
 		if (result && result.users) {
 			return result.users.numFound;
+		}
+	},
+
+	numOfRoomsFound() {
+		const result = Template.instance().result.get();
+		if (result && result.rooms) {
+			return result.rooms.numFound;
 		}
 	},
 
@@ -138,7 +152,7 @@ Template.ChatpalSearch.helpers({
 
 	resultsFoundForAllSearch() {
 		const result = Template.instance().result.get();
-		return result && (result.messages || result.users);
+		return result && (result.messages || result.users || result.rooms);
 	},
 
 	resultPaging() {
@@ -187,5 +201,23 @@ Template.ChatpalSearchSingleMessage.helpers({
 
 	roomLink(subscription) {
 		return RocketChat.roomTypes.getRouteLink(subscription.t, subscription);
+	}
+});
+
+Template.ChatpalSearchSingleRoom.helpers({
+	roomName(subscription) {
+		return subscription.name;
+	},
+
+	roomIcon(subscription) {
+		return RocketChat.roomTypes.getIcon(subscription.t) || 'at'; //TODO fix
+	},
+
+	roomLink(subscription) {
+		return RocketChat.roomTypes.getRouteLink(subscription.t, subscription);
+	},
+
+	showPills() {
+		return (this.announcement || this.topic || this.description);
 	}
 });

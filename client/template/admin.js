@@ -22,6 +22,7 @@ Template.ChatpalAdmin.onCreated(function() {
 
 	this.messagesIndexed = new ReactiveVar(0);
 	this.usersIndexed = new ReactiveVar(0);
+	this.roomsIndexed = new ReactiveVar(0);
 	this.indexingRunning = new ReactiveVar(false);
 	this.enabled = new ReactiveVar(false);
 
@@ -51,6 +52,7 @@ Template.ChatpalAdmin.onCreated(function() {
 				this.enabled.set(true);
 				this.messagesIndexed.set(stats.numbers.messages);
 				this.usersIndexed.set(stats.numbers.users);
+				this.roomsIndexed.set(stats.numbers.rooms);
 				this.indexingRunning.set(stats.running);
 			}
 
@@ -196,6 +198,9 @@ Template.ChatpalAdmin.helpers({
 	},
 	numOfUsers() {
 		return Template.instance().usersIndexed.get();
+	},
+	numOfRooms() {
+		return Template.instance().roomsIndexed.get();
 	},
 	numOfMessages() {
 		return Template.instance().messagesIndexed.get();

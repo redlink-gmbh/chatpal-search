@@ -40,6 +40,19 @@
 						</div>
 					{{/if}}
 					{{/if}}
+					{{#if numOfRoomsFound}}
+						<div class="chatpal-search-result-header">
+							{{_ "CHATPAL_TERM_ROOMS"}}
+							<div style="clear:both"></div>
+						</div>
+						{{#if resultRoomDocs}}
+							<div class="chatpal-search-result-list">
+								{{#each resultRoomDocs}}
+									{{> ChatpalSearchSingleRoom}}
+								{{/each}}
+							</div>
+						{{/if}}
+					{{/if}}
 					{{#if numOfMessagesFound}}
 					<div class="chatpal-search-result-header">
 						{{_ "CHATPAL_TERM_MESSAGES"}}
@@ -154,6 +167,31 @@
 		<div class="direct-message">
 			<a href="/direct/{{username}}">{{_ "CHATPAL_TERM_SEND_DIRECT_MESSAGE"}}</a>
 		</div>
+		<div style="clear: both"></div>
+	</div>
+</template>
+
+<template name="ChatpalSearchSingleRoom">
+	<div class="chatpal-search-result-user chatpal-search-result-room">
+		<h2>
+			<span class="chatpal-channel">
+				{{> icon icon=(roomIcon subscription)}}
+						{{roomName subscription}}</span>
+			<a class="chatpal-link" href="{{roomLink subscription}}">{{_ "CHATPAL_TERM_GOTO_ROOM"}}</a>
+		</h2>
+		{{#if showPills}}
+		<div class="chatpal-search-pills">
+			{{#if topic}}
+				<div class="chatpal-search-pills-topic">{{topic}}</div>
+			{{/if}}
+			{{#if description}}
+				<div class="chatpal-search-pills-description">{{description}}</div>
+			{{/if}}
+			{{#if announcement}}
+				<div class="chatpal-search-pills-announcement">{{announcement}}</div>
+			{{/if}}
+		</div>
+		{{/if}}
 		<div style="clear: both"></div>
 	</div>
 </template>

@@ -57,7 +57,9 @@ TAPi18n.loadTranslations({
 		CHATPAL_MSG_ERROR_USERNAME_ALREADY_EXISTS: 'Account for email already exists',
 		CHATPAL_TERM_REINDEX: 'Reindex',
 		CHATPAL_TERM_CONFIGURATION: 'Configuration',
-		CHATPAL_TERM_INDEX: 'Index'
+		CHATPAL_TERM_INDEX: 'Index',
+		CHATPAL_TERM_ROOMS: 'Rooms',
+		CHATPAL_TERM_GOTO_ROOM: 'Go to room'
 	},
 	de: {
 		CHATPAL: 'Chatpal',
@@ -117,6 +119,8 @@ TAPi18n.loadTranslations({
 		CHATPAL_MSG_ERROR_USERNAME_ALREADY_EXISTS: 'Account für diese Email Adresse existiert bereits',
 		CHATPAL_TERM_REINDEX: 'Neu indexieren',
 		CHATPAL_TERM_CONFIGURATION: 'Einstellungen',
-		CHATPAL_TERM_INDEX: 'Index'
+		CHATPAL_TERM_INDEX: 'Index',
+		CHATPAL_TERM_ROOMS: 'Räume',
+		CHATPAL_TERM_GOTO_ROOM: 'Link zum Raum'
 	}
 }, 'project');
