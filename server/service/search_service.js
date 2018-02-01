@@ -529,7 +529,7 @@ class ChatpalSearchService {
 	indexRoom(r) {
 		if (this.enabled) {
 
-			const options = {data:ChatpalIndexer.getIndexRoomDocument(u)};
+			const options = {data:ChatpalIndexer.getIndexRoomDocument(r)};
 
 			_.extend(options, Chatpal.Backend.httpOptions);
 
