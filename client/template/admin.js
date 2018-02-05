@@ -9,16 +9,7 @@ Template.ChatpalAdmin.onCreated(function() {
 	this.loadingConfig = new ReactiveVar(true);
 
 	this.validated = new ReactiveVar(false);
-	this.config = new ReactiveVar({
-		backendtype:'cloud',
-		docs_per_page: 5,
-		dateformat: 'MMM Do',
-		timeformat: 'H:mm A',
-		language: 'none',
-		batchsize: 24,
-		timeout: 10000,
-		headerstring: ''
-	});
+	this.config = new ReactiveVar(undefined);
 
 	this.messagesIndexed = new ReactiveVar(0);
 	this.usersIndexed = new ReactiveVar(0);
@@ -37,16 +28,15 @@ Template.ChatpalAdmin.onCreated(function() {
 
 			this.loadingConfig.set(false);
 		}
-
-		//check if existing key is valid
-		this.validate(this.config.get().apikey);
 	});
 
 	this.getStats = () => {
 		Meteor.call('chatpal.search.stats', (err, stats) => {
-			if(err) console.error(err);
+			if (err) {
+				console.error(err);
+			}
 
-			if(!stats.enabled) {
+			if (!stats.enabled) {
 				this.enabled.set(false);
 			} else {
 				this.enabled.set(true);
@@ -127,9 +117,13 @@ Template.ChatpalAdmin.onCreated(function() {
 		this.indexingRunning.set(true);
 
 		//check preconditions
-		if (config.backendtype === 'onsite' && (!config.baseurl || !config.baseurl.match(/^https?:\/\/.+/))) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_BASEURL_NOT_VALID')); }
+		if (config.backendtype === 'onsite' && (!config.baseurl || !config.baseurl.match(/^https?:\/\/.+/))) {
+			return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_BASEURL_NOT_VALID'));
+		}
 
-		if (config.backendtype === 'cloud' && (!config.apikey || !this.validated.get())) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CONFIG_CANNOT_BE_STORED')); }
+		if (config.backendtype === 'cloud' && (!config.apikey || !this.validated.get())) {
+			return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CONFIG_CANNOT_BE_STORED'));
+		}
 
 		if (config.backendtype === 'onsite') {
 			try {
@@ -144,7 +138,7 @@ Template.ChatpalAdmin.onCreated(function() {
 		Meteor.call('chatpal.config.set', config, (err) => {
 			if (err) {
 				console.error(err);
-				return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_APIKEY_NOT_VALID'));
+				return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_APIKEY_NOT_VALID')); //todo map error - this is only one wroong option
 			}
 
 			toastr.info(TAPi18n.__('CHATPAL_MSG_INFO_CONFIG_STORED_SUCCESSFULLY'));
@@ -168,7 +162,7 @@ Template.ChatpalAdmin.events({
 			language: e.target.language.value,
 			batchsize: e.target.batchsize.value || t.config.get().batchsize,
 			timeout: e.target.timeout.value || t.config.get().timeout,
-			headerstring:  e.target.headerstring ? e.target.headerstring.value : undefined
+			headerstring: e.target.headerstring ? e.target.headerstring.value : undefined
 		});
 	},
 	'click .chatpal-newkey'(e, t) {

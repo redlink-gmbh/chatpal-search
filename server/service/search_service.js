@@ -19,7 +19,7 @@ class ChatpalIndexer {
 	}
 
 	reindex() {
-		if(!this.running) {
+		if (!this.running) {
 			this.bootstrap(true);
 		}
 	}
@@ -102,7 +102,7 @@ class ChatpalIndexer {
 			const userDocs = [];
 
 			users.forEach((u) => {
-				if(u.active) {
+				if (u.active) {
 					userDocs.push(ChatpalIndexer.getIndexUserDocument(u));
 				}
 			});
@@ -256,7 +256,7 @@ class ChatpalIndexer {
 
 		let last_date = new Date().valueOf();
 
-		if(clear) {
+		if (clear) {
 			this._clear();
 		} else {
 			last_date = this._getlastdate();
@@ -357,26 +357,26 @@ class ChatpalSearchService {
 		const pagesize = Chatpal.Backend.config.docs_per_page;
 		return {
 			q:text,
-			'hl.fl':'text_'+Chatpal.Backend.language,
+			'hl.fl':`text_${ Chatpal.Backend.language }`,
 			'fq': this._getAccessFiler(Meteor.user()),
-			qf:'text_' + Chatpal.Backend.language + '^2 text',
+			qf:`text_${ Chatpal.Backend.language }^2 text`,
 			start:(page-1)*pagesize,
 			rows: pagesize
-		}
+		};
 	}
 
 	_getQueryParameterStringForAll(text, /*filters*/) {
 		return {
 			q:text,
-			'hl.fl':'text_' + Chatpal.Backend.language,
-			qf:'text_' + Chatpal.Backend.language + '^2 text',
+			'hl.fl':`text_${ Chatpal.Backend.language }`,
+			qf:`text_${ Chatpal.Backend.language }^2 text`,
 			group:true,
 			'group.field':'type',
-			sort:"if(termfreq(type,'CHATPAL_RESULT_TYPE_USER'),2,if(termfreq(type,'CHATPAL_RESULT_TYPE_MESSAGE'),1,0)) desc",
+			sort:'if(termfreq(type,\'CHATPAL_RESULT_TYPE_USER\'),2,if(termfreq(type,\'CHATPAL_RESULT_TYPE_MESSAGE\'),1,0)) desc',
 			'group.sort':'score desc',
 			'group.limit': Chatpal.Backend.config.docs_per_page,
 			fq:this._getGroupAccessFiler(Meteor.user())
-		}
+		};
 	}
 
 	_alignResponse(result) {
@@ -514,14 +514,14 @@ class ChatpalSearchService {
 
 			_.extend(options, Chatpal.Backend.httpOptions);
 
-			if(u.active) {
+			if (u.active) {
 				logger && logger.debug('Index User', u._id);
 
 				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
 			} else {
 				logger && logger.debug('Remove inactive User', `u_${ u._id }`);
 
-				this.remove(`u_${ u._id }`)
+				this.remove(`u_${ u._id }`);
 			}
 		}
 	}
@@ -544,7 +544,7 @@ class ChatpalSearchService {
 
 		logger && logger.debug('Index User by id', id);
 
-		if(u !== null) this.indexUser(u);
+		if (u !== null) { this.indexUser(u); }
 	}
 
 	indexRoomById(id) {
@@ -552,7 +552,7 @@ class ChatpalSearchService {
 
 		logger && logger.debug('Index Room by id', id);
 
-		if(r !== null) this.indexRoom(r);
+		if (r !== null) { this.indexRoom(r); }
 	}
 
 	reindex() {
@@ -599,12 +599,12 @@ class ChatpalSearchService {
 			const chart_result = response.data.facet_counts.facet_ranges.created.counts;
 
 			Object.keys(chart_result).forEach(function(date) {
-				stats.chart.push([new Date(date),chart_result[date]])
+				stats.chart.push([new Date(date), chart_result[date]]);
 			});
 
 			return stats;
 		} else {
-			return {enabled:false}
+			return {enabled:false};
 		}
 	}
 

@@ -9,7 +9,7 @@ Meteor.methods({
 		try {
 			return Chatpal.service.SearchService.search(text, page, type, filters);
 		} catch (e) {
-			throw new Meteor.Error("chatpal-error", e);
+			throw new Meteor.Error('chatpal-error', e);
 		}
 	}
 });
@@ -19,7 +19,7 @@ Meteor.methods({
 		try {
 			return Chatpal.service.SearchService.getStatistics();
 		} catch (e) {
-			throw new Meteor.Error("chatpal-error", e);
+			throw new Meteor.Error('chatpal-error', e);
 		}
 	}
 });
@@ -29,7 +29,7 @@ Meteor.methods({
 		try {
 			return Chatpal.service.SearchService.reindex();
 		} catch (e) {
-			throw new Meteor.Error("chatpal-error", e);
+			throw new Meteor.Error('chatpal-error', e);
 		}
 	}
 });
@@ -44,7 +44,7 @@ Meteor.methods({
 		//test settings
 		Chatpal.Backend.init(config);
 
-		if (!Chatpal.Backend.enabled) { throw new Error('cannot enable chatpal backend'); }
+		if (!Chatpal.Backend.enabled) { throw new Meteor.Error('cannot enable chatpal backend'); }
 
 		//make settings
 		//check if config already exists

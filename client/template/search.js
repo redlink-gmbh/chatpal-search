@@ -98,7 +98,7 @@ Template.ChatpalSearch.helpers({
 	},
 
 	resultRoomDocs() {
-		const result = Template.instance().result.get();console.log(123,result);
+		const result = Template.instance().result.get();console.log(123, result);
 		if (result && result.rooms) {
 			return result.rooms.docs;
 		}
