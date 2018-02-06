@@ -11,8 +11,8 @@
 .chatpal-external-search-input {
 	position: absolute;
 	top: 12px;
-	right: 40px;
-	z-index: 1000;
+	right: 220px;
+	z-index: 1;
 	display: block;
 }
 

@@ -66,7 +66,7 @@ export class ChatpalBackend {
 
 	generateKey(email) {
 		try {
-			const response = HTTP.call('POST', `${ this.chatpalBaseUrl }/account`, {data:{email, tier:'free'}});
+			const response = HTTP.call('POST', `${this.chatpalBaseUrl}/account`, { data: { email, tier: 'free' } });
 			if (response.statusCode === 201) {
 				return response.data.key;
 			} else {
@@ -79,7 +79,7 @@ export class ChatpalBackend {
 
 	renewKey(key) {
 		try {
-			const response = HTTP.call('POST', `${ this.chatpalBaseUrl }/account/key`, {headers: {'X-Api-Key': key}});
+			const response = HTTP.call('POST', `${this.chatpalBaseUrl}/account/key`, { headers: { 'X-Api-Key': key } });
 			if (response.statusCode === 201) {
 				return response.data.key;
 			} else {
@@ -92,7 +92,7 @@ export class ChatpalBackend {
 
 	validateKey(key) {
 		try {
-			const response = HTTP.call('GET', `${ this.chatpalBaseUrl }/account/key`, {headers: {'X-Api-Key': key}});
+			const response = HTTP.call('GET', `${this.chatpalBaseUrl}/account/key`, { headers: { 'X-Api-Key': key } });
 			if (response.statusCode === 204) {
 				return true;
 			} else {
