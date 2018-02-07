@@ -1,17 +1,15 @@
+@import "../../../rocketchat-theme/client/main.css";
 #chatpal-search-result-container {
-	width: 450px;
-	position: absolute;
-	top: 61px;
+	width: 100%;
+	position: relative;
 	right: 0px;
 	background-color: white;
-	border-left: 1px solid #efefef;
-	height: calc(100vh - 60px);
+	height: 100%;
 }
 
 .chatpal-external-search-input {
-	position: absolute;
-	top: 12px;
-	right: 220px;
+	position: relative;
+	top: -22px;
 	z-index: 1;
 	display: block;
 }
@@ -34,10 +32,9 @@
 }
 
 .chatpal-external-search-input input {
-	width: 300px;
+	width: 100%;
 	padding: 9px 5px 9px 37px;
 	border: 1px solid #eee;
-	border-radius: 5px;
 	font-size: 14px;
 	background-color: white;
 }
@@ -61,10 +58,8 @@
 }
 
 .chatpal-search-result{
-	overflow:scroll;
-	flex:1 1 auto;
-	height: calc(100vh - 135px);
-	background-color: #f1f1f1;
+	overflow: hidden;
+	flex: 1 1 auto;
 }
 
 .chatpal-search-result-inner {
@@ -83,6 +78,7 @@
 
 .chatpal-search-result-header {
 	margin: 20px 0;
+	font-weight: bold;
 }
 
 .chatpal-search-number {
@@ -96,7 +92,6 @@
 .chatpal-search-result-single {
 	background-color: white;
 	padding: 10px;
-	border-radius: 5px;
 	border: 1px solid #e6e6e6;
 	margin-bottom: 10px;
 	min-height: 92px;
@@ -106,7 +101,6 @@
 .chatpal-search-result-user {
 	background-color: white;
 	padding: 10px;
-	border-radius: 5px;
 	border: 1px solid #e6e6e6;
 	margin-bottom: 10px;
 	min-height: 40px;
@@ -144,7 +138,7 @@
 .chatpal-show-more-messages {
 	font-size: 14px;
 	font-weight: bold;
-	color: #286ca8;
+	color: var(--button-primary-background);
 	text-align: center;
 	cursor: pointer;
 	margin-bottom: 20px;
@@ -155,7 +149,7 @@
 }
 
 .chatpal-search-result-user .direct-message a {
-	color: #286ca8;
+	color: var(--button-primary-background);
 }
 
 .chatpal-search-result-user .direct-message a:hover {
@@ -213,7 +207,7 @@
 .chatpal-search-result-single .chatpal-link {
 	display: none;
 	margin-left: 3px;
-	color: #286ca8;
+	color: var(--button-primary-background);
 }
 
 .chatpal-search-result-single .chatpal-link:hover {
@@ -236,7 +230,7 @@
 }
 
 .chatpal-paging .chatpal-paging-button {
-	color: #286ca8;
+	color: var(--button-primary-background);
 	cursor: pointer;
 	font-size: 20px;
 	display: inline-block;
@@ -320,7 +314,6 @@
 	width: 100%;
 	resize: none;
 	height: 100px;
-	border-radius: 5px;
 }
 
 .chatpal-api-key i {
@@ -342,7 +335,7 @@
 }
 
 .chatpal-search-typefilter li.selected {
-	border-bottom: 4px solid #286ca8;
+	border-bottom: 4px solid var(--button-primary-background);
 }
 
 .chatpal-admin-header {
@@ -369,7 +362,6 @@
 }
 
 .chatpal-search-pills div {
-	background-color: #f1f1f1;
 	padding: 2px 5px;
 	display: inline-block;
 	margin-right: 5px;
@@ -383,7 +375,7 @@
 .chatpal-search-result-room .chatpal-link {
 	display: none;
 	margin-left: 3px;
-	color: #286ca8;
+	color: var(--button-primary-background);
 }
 
 .chatpal-search-result-room:hover .chatpal-link {
