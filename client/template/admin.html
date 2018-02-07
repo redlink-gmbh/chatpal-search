@@ -42,8 +42,21 @@
 		</h2>
 		<form>
 			<div class="rocket-form">
-				<h3>{{_ "CHATPAL_CONFIG_BACKEND"}}</h3>
+				<h3>{{_ "enabled"}}</h3>
 				<fieldset>
+					<div class="input-line">
+					<div>
+						<label>
+							<input type="radio" class="chatpal-admin-activated" name="activated" value=true checked="{{$eq config.chatpalActivated true}}">
+							{{_ "true"}}
+						</label>
+						<label>
+							<input type="radio" class="chatpal-admin-activated" name="activated" value=false checked="{{$eq config.chatpalActivated false}}">
+							{{_ "false"}}
+						</label>
+					</div>
+				</div>
+					<h3>{{_ "CHATPAL_CONFIG_BACKEND"}}</h3>
 					<div class="input-line">
 						<div>
 							<label>
