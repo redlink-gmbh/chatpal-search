@@ -1,140 +1,139 @@
 <template name="ChatpalSearch">
 	<div class="chatpal-external-search-input">
-		<i class="icon-search"></i>
 		<input type="text" class="chatpal-external-search-input-in" placeholder='{{_ "CHATPAL_ENTER_SEARCH_STRING"}}'>
 	</div>
 	{{#if showResults}}
 		<div id="chatpal-search-result-container">
 			<div class="chatpal-search-container">
-		<button class="chatpal-search-container-close">
-			<i class="icon-cancel"></i>
-		</button>
-		<h1>{{_ "CHATPAL_SEARCH_RESULTS_TITLE"}}</h1>
-		{{#if enabled}}
-		<ul class="chatpal-search-typefilter">
-			<li value="All" class="{{navSelected 'All'}}">{{_ "CHATPAL_TERM_ALL_RESULTS"}}</li>
-			<li value="Messages" class="{{navSelected 'Messages'}}">{{_ "CHATPAL_TERM_MESSAGES_ONLY"}}</li>
-		</ul>
-		<div class="chatpal-search-result">
-			{{#if loading}}
-				<div class="loading">
-					<div class="spinner">
-						<div class="bounce1"></div>
-						<div class="bounce2"></div>
-						<div class="bounce3"></div>
-					</div>
-				</div>
-			{{else}}
-				{{#if $eq resultType "All"}}
-				<div class="chatpal-search-result-inner">
-					{{#if numOfUsersFound}}
-					<div class="chatpal-search-result-header">
-						{{_ "CHATPAL_TERM_USERS"}}
-						<div style="clear:both"></div>
-					</div>
-					{{#if resultUserDocs}}
-						<div class="chatpal-search-result-list">
-							{{#each resultUserDocs}}
-								{{> ChatpalSearchSingleUser}}
-							{{/each}}
-						</div>
-					{{/if}}
-					{{/if}}
-					{{#if numOfRoomsFound}}
-						<div class="chatpal-search-result-header">
-							{{_ "CHATPAL_TERM_ROOMS"}}
-							<div style="clear:both"></div>
-						</div>
-						{{#if resultRoomDocs}}
-							<div class="chatpal-search-result-list">
-								{{#each resultRoomDocs}}
-									{{> ChatpalSearchSingleRoom}}
-								{{/each}}
+				<h1>{{_ "CHATPAL_SEARCH_RESULTS_TITLE"}}</h1>
+				{{#if enabled}}
+					<ul class="chatpal-search-typefilter">
+						<li value="All" class="{{navSelected 'All'}}">{{_ "CHATPAL_TERM_ALL_RESULTS"}}</li>
+						<li value="Messages" class="{{navSelected 'Messages'}}">{{_ "CHATPAL_TERM_MESSAGES_ONLY"}}</li>
+					</ul>
+					<div class="chatpal-search-result">
+						{{#if loading}}
+							<div class="loading">
+								<div class="spinner">
+									<div class="bounce1"></div>
+									<div class="bounce2"></div>
+									<div class="bounce3"></div>
+								</div>
 							</div>
-						{{/if}}
-					{{/if}}
-					{{#if numOfMessagesFound}}
-					<div class="chatpal-search-result-header">
-						{{_ "CHATPAL_TERM_MESSAGES"}}
-						<div style="clear:both"></div>
-					</div>
-					{{#if resultMessageDocs}}
-						<div class="chatpal-search-result-list">
-							{{#each resultMessageDocs}}
-								{{> ChatpalSearchSingleMessage}}
-							{{/each}}
-						</div>
-						{{#if numOfMessagesMoreThanPageSize}}
-							<div class="chatpal-show-more-messages">{{_ "CHATPAL_TERM_SHOW_MORE"}}</div>
-						{{/if}}
-					{{/if}}
-					{{/if}}
-					{{#if $not resultsFoundForAllSearch}}
-						<div class="chatpal-search-result-header">
-							<h2>{{_ "CHATPAL_SEARCH_NO_RESULTS"}}</h2>
-						</div>
-						{{/if}}
-				</div>
-				{{/if}}
-				{{#if $eq resultType "Messages"}}
-					<div class="chatpal-search-result-inner">
-						<div class="chatpal-search-result-header">
-							<!--<div class="chatpal-search-channel-filter">
-                                <select class="chatpal-search-channel-filter-selector">
-                                    <option value="none">allen Räumen</option>
-                                    <option value="room">diesem Raum</option>
-                                </select>
-                            </div>-->
-							<h2 class="chatpal-search-number">
-								{{#if resultNumFound}}
-									{{resultNumFound}}
-								{{/if}}
-							</h2>
-							<!--<ul class="chatpal-search-sorting">
-                                <li>Recent</li>
-                                <li>Relevant</li>
-                            </ul>-->
-							<div style="clear:both"></div>
-						</div>
-						{{#if resultDocs}}
-							<div class="chatpal-search-result-list">
-								{{#each resultDocs}}
-									{{> ChatpalSearchSingleMessage}}
-								{{/each}}
-							</div>
-						{{/if}}
-						{{#if resultPaging}}
-							{{#if $neq resultPaging.numOfPages 0}}
-								<div class="chatpal-paging">
-									{{#if $gt resultPaging.currentPage 1}}
-										<div class="chatpal-paging-prev chatpal-paging-button">
-											<i class="icon-left-circled2"></i>
+						{{else}}
+							{{#if $eq resultType "All"}}
+								<div class="chatpal-search-result-inner">
+									{{#if numOfUsersFound}}
+										<div class="chatpal-search-result-header">
+											{{_ "CHATPAL_TERM_USERS"}}
+											<div style="clear:both"></div>
 										</div>
+										{{#if resultUserDocs}}
+											<div class="chatpal-search-result-list">
+												{{#each resultUserDocs}}
+													{{> ChatpalSearchSingleUser}}
+												{{/each}}
+											</div>
+										{{/if}}
 									{{/if}}
-									<div class="chatpal-paging-text">{{_ "CHATPAL_SEARCH_PAGE_OF" resultPaging.currentPage resultPaging.numOfPages}}</div>
-									{{#if $lt resultPaging.currentPage resultPaging.numOfPages}}
-										<div class="chatpal-paging-next chatpal-paging-button">
-											<i class="icon-right-circled2"></i>
+									{{#if numOfRoomsFound}}
+										<div class="chatpal-search-result-header">
+											{{_ "CHATPAL_TERM_ROOMS"}}
+											<div style="clear:both"></div>
+										</div>
+										{{#if resultRoomDocs}}
+											<div class="chatpal-search-result-list">
+												{{#each resultRoomDocs}}
+													{{> ChatpalSearchSingleRoom}}
+												{{/each}}
+											</div>
+										{{/if}}
+									{{/if}}
+									{{#if numOfMessagesFound}}
+										<div class="chatpal-search-result-header">
+											{{_ "CHATPAL_TERM_MESSAGES"}}
+											<div style="clear:both"></div>
+										</div>
+										{{#if resultMessageDocs}}
+											<div class="chatpal-search-result-list">
+												{{#each resultMessageDocs}}
+													{{> ChatpalSearchSingleMessage}}
+												{{/each}}
+											</div>
+											{{#if numOfMessagesMoreThanPageSize}}
+												<div class="chatpal-show-more-messages">{{_
+														"CHATPAL_TERM_SHOW_MORE"}}</div>
+											{{/if}}
+										{{/if}}
+									{{/if}}
+									{{#if $not resultsFoundForAllSearch}}
+										<div class="chatpal-search-result-header">
+											<h2>{{_ "CHATPAL_SEARCH_NO_RESULTS"}}</h2>
 										</div>
 									{{/if}}
 								</div>
 							{{/if}}
+							{{#if $eq resultType "Messages"}}
+								<div class="chatpal-search-result-inner">
+									<div class="chatpal-search-result-header">
+										<!--<div class="chatpal-search-channel-filter">
+                                            <select class="chatpal-search-channel-filter-selector">
+                                                <option value="none">allen Räumen</option>
+                                                <option value="room">diesem Raum</option>
+                                            </select>
+                                        </div>-->
+										<h2 class="chatpal-search-number">
+											{{#if resultNumFound}}
+												{{resultNumFound}}
+											{{/if}}
+										</h2>
+										<!--<ul class="chatpal-search-sorting">
+                                            <li>Recent</li>
+                                            <li>Relevant</li>
+                                        </ul>-->
+										<div style="clear:both"></div>
+									</div>
+									{{#if resultDocs}}
+										<div class="chatpal-search-result-list">
+											{{#each resultDocs}}
+												{{> ChatpalSearchSingleMessage}}
+											{{/each}}
+										</div>
+									{{/if}}
+									{{#if resultPaging}}
+										{{#if $neq resultPaging.numOfPages 0}}
+											<div class="chatpal-paging">
+												{{#if $gt resultPaging.currentPage 1}}
+													<div class="chatpal-paging-prev chatpal-paging-button">
+														<i class="icon-left-circled2"></i>
+													</div>
+												{{/if}}
+												<div class="chatpal-paging-text">{{_ "CHATPAL_SEARCH_PAGE_OF"
+																					 resultPaging.currentPage
+																					 resultPaging.numOfPages}}</div>
+												{{#if $lt resultPaging.currentPage resultPaging.numOfPages}}
+													<div class="chatpal-paging-next chatpal-paging-button">
+														<i class="icon-right-circled2"></i>
+													</div>
+												{{/if}}
+											</div>
+										{{/if}}
+									{{/if}}
+								</div>
+							{{/if}}
+							{{#if badRequest}}
+								<div class="chatpal-search-info">
+										{{_ badRequest}}<!-- TODO Display -->
+								</div>
+							{{/if}}
 						{{/if}}
 					</div>
-				{{/if}}
-				{{#if badRequest}}
+				{{else}}
 					<div class="chatpal-search-info">
-							{{_ badRequest}}<!-- TODO Display -->
+						Search is currently not available. Maybe it is not yet configured or service is currently down.
 					</div>
 				{{/if}}
-			{{/if}}
-		</div>
-		{{else}}
-			<div class="chatpal-search-info">
-				Search is currently not available. Maybe it is not yet configured or service is currently down.
 			</div>
-		{{/if}}
-	</div>
 		</div>
 	{{/if}}
 </template>
@@ -149,7 +148,8 @@
 			<span class="chatpal-date">{{date_strings.date}}</span>
 		</h2>
 		<div class="chatpal-avatar">
-			<div class="chatpal-avatar-image" style="background-image:url(/avatar/{{user_data.username}}?_dc=undefined);"></div>
+			<div class="chatpal-avatar-image"
+				 style="background-image:url(/avatar/{{user_data.username}}?_dc=undefined);"></div>
 		</div>
 		<span class="chatpal-name">{{user_data.name}}</span>
 		<span class="chatpal-time">{{date_strings.time}}</span>
@@ -176,21 +176,21 @@
 		<h2>
 			<span class="chatpal-channel">
 				{{> icon icon=(roomIcon subscription)}}
-						{{roomName subscription}}</span>
+				{{roomName subscription}}</span>
 			<a class="chatpal-link" href="{{roomLink subscription}}">{{_ "CHATPAL_TERM_GOTO_ROOM"}}</a>
 		</h2>
 		{{#if showPills}}
-		<div class="chatpal-search-pills">
-			{{#if topic}}
-				<div class="chatpal-search-pills-topic">{{topic}}</div>
-			{{/if}}
-			{{#if description}}
-				<div class="chatpal-search-pills-description">{{description}}</div>
-			{{/if}}
-			{{#if announcement}}
-				<div class="chatpal-search-pills-announcement">{{announcement}}</div>
-			{{/if}}
-		</div>
+			<div class="chatpal-search-pills">
+				{{#if topic}}
+					<div class="chatpal-search-pills-topic">{{topic}}</div>
+				{{/if}}
+				{{#if description}}
+					<div class="chatpal-search-pills-description">{{description}}</div>
+				{{/if}}
+				{{#if announcement}}
+					<div class="chatpal-search-pills-announcement">{{announcement}}</div>
+				{{/if}}
+			</div>
 		{{/if}}
 		<div style="clear: both"></div>
 	</div>

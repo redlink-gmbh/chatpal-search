@@ -9,16 +9,12 @@ Meteor.startup(function() {
 	});
 
 	RocketChat.TabBar.removeButton('message-search');
-});
-
-$('body').on('DOMNodeInserted', function(e) {
-	const rc = $(e.target).find('#rocket-chat');
-	if (rc[0] && !rc.find('.chatpal-external-search-input')[0]) {
-
-		const container = $('<div>').attr('id', 'chatpal-external-search').appendTo(rc);
-
-		//render input field
-		Blaze.renderWithData(Template.ChatpalSearch, {}, container[0]);
-	}
-
+	RocketChat.TabBar.addButton({
+		groups: ['channel', 'group', 'direct'],
+		id: 'message-search',
+		i18nTitle: 'CHATPAL_SEARCH',
+		icon: 'chatpal',
+		template: 'ChatpalSearch',
+		order: 1
+	});
 });

@@ -1,8 +1,6 @@
-import toastr from 'toastr';
 
 Template.ChatpalSearch.onCreated(function() {
 
-	this.pattern = new RegExp('^((create-channel)|(account)|(admin.*)|(mailer)|(emoji-custom)|(custom-sounds))$');
 
 	this.enabled = new ReactiveVar(true);
 	this.result = new ReactiveVar;
@@ -11,15 +9,7 @@ Template.ChatpalSearch.onCreated(function() {
 	this.badRequest = new ReactiveVar(false);
 
 	this.resultType = new ReactiveVar('All');
-
-	this.autorun(() => {
-		const routeName = FlowRouter.getRouteName();
-		if (this.pattern.test(routeName)) {
-			$('#chatpal-external-search').hide();
-		} else {
-			$('#chatpal-external-search').show();
-		}
-	});
+	$('.contextual-bar__header-title').hide();
 });
 
 Template.ChatpalSearch.onRendered(function() {
