@@ -3,8 +3,8 @@
 		<i class="icon-search"></i>
 		<input type="text" class="chatpal-external-search-input-in" placeholder='{{_ "CHATPAL_ENTER_SEARCH_STRING"}}'>
 	</div>
-	{{#if showResults}}
-		<div id="chatpal-search-result-container">
+
+		<div id="chatpal-search-result-container" class="{{#if showResults}}showSearchResult{{else}}hideSearchResult{{/if}}">
 			<div class="chatpal-search-container">
 		<button class="chatpal-search-container-close">
 			<i class="icon-cancel"></i>
@@ -136,7 +136,6 @@
 		{{/if}}
 	</div>
 		</div>
-	{{/if}}
 </template>
 
 <template name="ChatpalSearchSingleMessage">

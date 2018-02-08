@@ -19,7 +19,7 @@ class ChatpalIndexer {
 	}
 
 	reindex() {
-		if(!this.running) {
+		if (!this.running) {
 			this.bootstrap(true);
 		}
 	}
@@ -102,7 +102,7 @@ class ChatpalIndexer {
 			const userDocs = [];
 
 			users.forEach((u) => {
-				if(u.active) {
+				if (u.active) {
 					userDocs.push(ChatpalIndexer.getIndexUserDocument(u));
 				}
 			});
@@ -239,11 +239,16 @@ class ChatpalIndexer {
 
 		_.extend(options, Chatpal.Backend.httpOptions);
 
-		const result = HTTP.call('POST', Chatpal.Backend.baseurl + Chatpal.Backend.searchpath, options);
+		try {
+			const result = HTTP.call('POST', Chatpal.Backend.baseurl + Chatpal.Backend.searchpath, options);
 
-		if (result.data.response.numFound > 0) {
-			return new Date(result.data.response.docs[0].created).valueOf();
-		} else {
+			if (result.data.response.numFound > 0) {logger("Foudn date 0", new Date(result.data.response.docs[0].created).valueOf())
+				return new Date(result.data.response.docs[0].created).valueOf();
+			} else {
+				return new Date().valueOf();
+			}
+		} catch (e) {
+			logger && logger.warn("cannot get latest date - complete reindex is triggered");
 			return new Date().valueOf();
 		}
 	}
@@ -256,7 +261,7 @@ class ChatpalIndexer {
 
 		let last_date = new Date().valueOf();
 
-		if(clear) {
+		if (clear) {
 			this._clear();
 		} else {
 			last_date = this._getlastdate();
@@ -357,26 +362,26 @@ class ChatpalSearchService {
 		const pagesize = Chatpal.Backend.config.docs_per_page;
 		return {
 			q:text,
-			'hl.fl':'text_'+Chatpal.Backend.language,
+			'hl.fl':`text_${ Chatpal.Backend.language }`,
 			'fq': this._getAccessFiler(Meteor.user()),
-			qf:'text_' + Chatpal.Backend.language + '^2 text',
+			qf:`text_${ Chatpal.Backend.language }^2 text`,
 			start:(page-1)*pagesize,
 			rows: pagesize
-		}
+		};
 	}
 
 	_getQueryParameterStringForAll(text, /*filters*/) {
 		return {
 			q:text,
-			'hl.fl':'text_' + Chatpal.Backend.language,
-			qf:'text_' + Chatpal.Backend.language + '^2 text',
+			'hl.fl':`text_${ Chatpal.Backend.language }`,
+			qf:`text_${ Chatpal.Backend.language }^2 text`,
 			group:true,
 			'group.field':'type',
-			sort:"if(termfreq(type,'CHATPAL_RESULT_TYPE_USER'),2,if(termfreq(type,'CHATPAL_RESULT_TYPE_MESSAGE'),1,0)) desc",
+			sort:'if(termfreq(type,\'CHATPAL_RESULT_TYPE_USER\'),2,if(termfreq(type,\'CHATPAL_RESULT_TYPE_MESSAGE\'),1,0)) desc',
 			'group.sort':'score desc',
 			'group.limit': Chatpal.Backend.config.docs_per_page,
 			fq:this._getGroupAccessFiler(Meteor.user())
-		}
+		};
 	}
 
 	_alignResponse(result) {
@@ -514,14 +519,14 @@ class ChatpalSearchService {
 
 			_.extend(options, Chatpal.Backend.httpOptions);
 
-			if(u.active) {
+			if (u.active) {
 				logger && logger.debug('Index User', u._id);
 
 				HTTP.call('POST', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.updatepath }`, options);
 			} else {
 				logger && logger.debug('Remove inactive User', `u_${ u._id }`);
 
-				this.remove(`u_${ u._id }`)
+				this.remove(`u_${ u._id }`);
 			}
 		}
 	}
@@ -544,7 +549,7 @@ class ChatpalSearchService {
 
 		logger && logger.debug('Index User by id', id);
 
-		if(u !== null) this.indexUser(u);
+		if (u !== null) { this.indexUser(u); }
 	}
 
 	indexRoomById(id) {
@@ -552,7 +557,7 @@ class ChatpalSearchService {
 
 		logger && logger.debug('Index Room by id', id);
 
-		if(r !== null) this.indexRoom(r);
+		if (r !== null) { this.indexRoom(r); }
 	}
 
 	reindex() {
@@ -583,28 +588,34 @@ class ChatpalSearchService {
 
 			_.extend(options, Chatpal.Backend.httpOptions);
 
-			const response = HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }`, options);
+			try {
+				const response = HTTP.call('GET', `${ Chatpal.Backend.baseurl }${ Chatpal.Backend.searchpath }`, options);
 
-			const stats = {
-				enabled: true,
-				numbers: {
-					messages: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_MESSAGE) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_MESSAGE : 0,
-					users: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_USER) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_USER : 0,
-					rooms: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_ROOM) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_ROOM : 0
-				},
-				chart: [],
-				running: this.indexer.running
-			};
+				const stats = {
+					enabled: true,
+					numbers: {
+						messages: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_MESSAGE) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_MESSAGE : 0,
+						users: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_USER) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_USER : 0,
+						rooms: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_ROOM) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_ROOM : 0
+					},
+					chart: [],
+					running: this.indexer.running
+				};
 
-			const chart_result = response.data.facet_counts.facet_ranges.created.counts;
+				const chart_result = response.data.facet_counts.facet_ranges.created.counts;
 
-			Object.keys(chart_result).forEach(function(date) {
-				stats.chart.push([new Date(date),chart_result[date]])
-			});
+				Object.keys(chart_result).forEach(function(date) {
+					stats.chart.push([new Date(date), chart_result[date]]);
+				});
 
-			return stats;
+				return stats;
+
+			} catch (e) {
+				logger && logger.error(e);
+				return {enabled:false};
+			}
 		} else {
-			return {enabled:false}
+			return {enabled:false};
 		}
 	}
 

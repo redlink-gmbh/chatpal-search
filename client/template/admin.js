@@ -34,9 +34,9 @@ Template.ChatpalAdmin.onCreated(function() {
 			config.backendtype = this.data.type() || config.backendtype;
 
 			this.config.set(config);
-
-			this.loadingConfig.set(false);
 		}
+
+		this.loadingConfig.set(false);
 
 		//check if existing key is valid
 		this.validate(this.config.get().apikey);

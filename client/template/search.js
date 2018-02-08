@@ -14,6 +14,9 @@ Template.ChatpalSearch.onCreated(function() {
 
 	this.autorun(() => {
 		const routeName = FlowRouter.getRouteName();
+
+		console.log(routeName);
+
 		if (this.pattern.test(routeName)) {
 			$('#chatpal-external-search').hide();
 		} else {

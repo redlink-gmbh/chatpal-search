@@ -1,161 +1,166 @@
 <template name="ChatpalAdmin">
-	{{#if loadingConfig}}
-		<div class="loading">
-			<div class="spinner">
-				<div class="bounce1"></div>
-				<div class="bounce2"></div>
-				<div class="bounce3"></div>
-			</div>
-		</div>
-	{{else}}
-	{{#if enabled}}
-	<div class="section">
-		<h2 class="chatpal-admin-header">
-			<div class="chatpal-admin-header-icon">
-				{{> icon block="chatpal-header-icon" icon="chatpal"}}
-			</div>
-			<div>{{_ "CHATPAL_TERM_INDEX"}}</div>
-		</h2>
-		<div class="chatpal-info-box">
-			<h3>{{_ "CHATPAL_TERM_MESSAGES"}}</h3>
-			<div class="chatpal-info-box-number">{{numOfMessages}}</div>
-		</div>
-		<div class="chatpal-info-box">
-			<h3>{{_ "CHATPAL_TERM_USERS"}}</h3>
-			<div class="chatpal-info-box-number">{{numOfUsers}}</div>
-		</div>
-		<div class="chatpal-info-box">
-			<h3>{{_ "CHATPAL_TERM_ROOMS"}}</h3>
-			<div class="chatpal-info-box-number">{{numOfRooms}}</div>
-		</div>
-		<div style="display: block; text-align: right">
-			<button class="button primary reindex" disabled="{{indexingRunning}}"><span>{{_ "CHATPAL_TERM_REINDEX"}}</span></button>
-		</div>
-	</div>
-	{{/if}}
-	<div class="section">
-		<h2 class="chatpal-admin-header">
-			<div class="chatpal-admin-header-icon">
-				{{> icon block="chatpal-header-icon" icon="chatpal"}}
-			</div>
-			<div>{{_ "CHATPAL_TERM_CONFIGURATION"}}</div>
-		</h2>
-		<form>
-			<div class="rocket-form">
-				<h3>{{_ "CHATPAL_CONFIG_BACKEND"}}</h3>
-				<fieldset>
-					<div class="input-line">
-						<div>
-							<label>
-								<input type="radio" class="chatpal-admin-type" name="backendtype" value="cloud" checked="{{$eq config.backendtype 'cloud'}}">
-								{{_ "CHATPAL_TERM_CLOUD_SERVICE"}}
-							</label>
-							<label>
-								<input type="radio" class="chatpal-admin-type" name="backendtype" value="onsite" checked="{{$eq config.backendtype 'onsite'}}">
-								{{_ "CHATPAL_TERM_ON_SITE_INSTALLATION"}}
-							</label>
-						</div>
+	<section class="page-container page-list">
+		{{> header sectionName=pageTitle}}
+		<div class="content">
+			{{#if loadingConfig}}
+				<div class="loading">
+					<div class="spinner">
+						<div class="bounce1"></div>
+						<div class="bounce2"></div>
+						<div class="bounce3"></div>
 					</div>
-				{{#if $eq config.backendtype 'onsite'}}
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_BASE_URL"}}</label>
-						<div>
-							<input type="text" value="{{config.baseurl}}" autocomplete="off" name="baseurl">
-						</div>
-						<div>
-							<small class="settings-description secondary-font-color">
-								{{_ "CHATPAL_TERM_BASE_URL_DESC"}}
-							</small>
-						</div>
+				</div>
+			{{else}}
+			{{#if enabled}}
+			<div>
+				<h2 class="chatpal-admin-header">
+					<div class="chatpal-admin-header-icon">
+						{{> icon block="chatpal-header-icon" icon="chatpal"}}
 					</div>
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_HEADERS"}}</label>
-						<div>
-							<textarea class="chatpal-admin-textarea" type="text" value="{{config.headerstring}}" name="headerstring"></textarea>
-						</div>
-						<div>
-							<small class="settings-description secondary-font-color">
-								{{_ "CHATPAL_TERM_HEADERS_DESC"}}
-							</small>
-						</div>
-					</div>
-				{{/if}}
-				{{#if $eq config.backendtype 'cloud'}}
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_API_KEY"}}</label>
-						<div class="chatpal-api-key">
-							<input type="text" value="{{config.apikey}}" class="chatpal-api-key-input" autocomplete="off" name="apikey">
-							{{#if $not validated}}
-								<i class="icon-attention"></i>
-							{{else}}
-								<i class="icon-ok"></i>
-							{{/if}}
-							<button disabled="{{$not validated}}" class="button primary chatpal-newkey"><span>{{_ "CHATPAL_TERM_REFRESH_KEY"}}</span></button>
-							<div style="clear: both"></div>
-						</div>
-						{{#if $not validated}}
-						<div>
-							<small class="settings-description secondary-font-color">
-								<!-- TODO translate -->
-								<b>{{_ "CHATPAL_SENTENCE_NO_API_KEY"}}</b>
-								<a href="/admin/chatpal/api-key">{{_ "CHATPAL_SENTENCE_GET_YOUR_API_KEY"}}</a>
-							</small>
-						</div>
-						{{/if}}
-					</div>
-				{{/if}}
-				</fieldset>
-				<h3>{{_ "CHATPAL_CONFIG_INDEXING"}}</h3>
-				<fieldset>
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_LANGUAGE"}}</label>
-						<div>
-							<select name="language">
-								<option selected="{{$eq config.language "none"}}" value="none">{{_ "CHATPAL_TERM_LANGUAGE_NONE"}}</option>
-								<option selected="{{$eq config.language "de"}}" value="de">{{_ "CHATPAL_TERM_LANGUAGE_DE"}}</option>
-								<option selected="{{$eq config.language "en"}}" value="en">{{_ "CHATPAL_TERM_LANGUAGE_EN"}}</option>
-							</select>
-						</div>
-					</div>
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_INDEX_BATCHSIZE_IN_HOURS"}}</label>
-						<div>
-							<input type="number" value="{{config.batchsize}}" autocomplete="off" name="batchsize">
-						</div>
-					</div>
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_WAIT_BETWEEN_INDEX_BATCHES_IN_MILLISECONDS"}}</label>
-						<div>
-							<input type="number" value="{{config.timeout}}" autocomplete="off" name="timeout">
-						</div>
-					</div>
-				</fieldset>
-				<h2>{{_ "CHATPAL_CONFIG_SEARCH"}}</h2>
-				<fieldset>
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_DOCUMENTS_PER_PAGE"}}</label>
-						<div>
-							<input type="number" value="{{config.docs_per_page}}" autocomplete="off" name="docs_per_page">
-						</div>
-					</div>
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_DATEFORMAT"}}</label>
-						<div>
-							<input type="text" value="{{config.dateformat}}" autocomplete="off" name="dateformat">
-						</div>
-					</div>
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_TIMEFORMAT"}}</label>
-						<div>
-							<input type="text" value="{{config.timeformat}}" autocomplete="off" name="timeformat">
-						</div>
-					</div>
-				</fieldset>
-				<div class="submit">
-					<button class="button primary send"><span>{{_ "Save"}}</span></button>
+					<div>{{_ "CHATPAL_TERM_INDEX"}}</div>
+				</h2>
+				<div class="chatpal-info-box">
+					<h3>{{_ "CHATPAL_TERM_MESSAGES"}}</h3>
+					<div class="chatpal-info-box-number">{{numOfMessages}}</div>
+				</div>
+				<div class="chatpal-info-box">
+					<h3>{{_ "CHATPAL_TERM_USERS"}}</h3>
+					<div class="chatpal-info-box-number">{{numOfUsers}}</div>
+				</div>
+				<div class="chatpal-info-box">
+					<h3>{{_ "CHATPAL_TERM_ROOMS"}}</h3>
+					<div class="chatpal-info-box-number">{{numOfRooms}}</div>
+				</div>
+				<div style="display: block; text-align: right">
+					<button class="button primary reindex" disabled="{{indexingRunning}}"><span>{{_ "CHATPAL_TERM_REINDEX"}}</span></button>
 				</div>
 			</div>
-		</form>
-	</div>
-	{{/if}}
+			{{/if}}
+			<div>
+				<h2 class="chatpal-admin-header">
+					<div class="chatpal-admin-header-icon">
+						{{> icon block="chatpal-header-icon" icon="chatpal"}}
+					</div>
+					<div>{{_ "CHATPAL_TERM_CONFIGURATION"}}</div>
+				</h2>
+				<form>
+					<div class="rocket-form">
+						<h3>{{_ "CHATPAL_CONFIG_BACKEND"}}</h3>
+						<fieldset>
+							<div class="input-line">
+								<div>
+									<label>
+										<input type="radio" class="chatpal-admin-type" name="backendtype" value="cloud" checked="{{$eq config.backendtype 'cloud'}}">
+										{{_ "CHATPAL_TERM_CLOUD_SERVICE"}}
+									</label>
+									<label>
+										<input type="radio" class="chatpal-admin-type" name="backendtype" value="onsite" checked="{{$eq config.backendtype 'onsite'}}">
+										{{_ "CHATPAL_TERM_ON_SITE_INSTALLATION"}}
+									</label>
+								</div>
+							</div>
+						{{#if $eq config.backendtype 'onsite'}}
+							<div class="input-line">
+								<label>{{_ "CHATPAL_TERM_BASE_URL"}}</label>
+								<div>
+									<input type="text" class="rc-input__element" value="{{config.baseurl}}" autocomplete="off" name="baseurl">
+								</div>
+								<div>
+									<small class="settings-description secondary-font-color">
+										{{_ "CHATPAL_TERM_BASE_URL_DESC"}}
+									</small>
+								</div>
+							</div>
+							<div class="input-line">
+								<label>{{_ "CHATPAL_TERM_HEADERS"}}</label>
+								<div>
+									<textarea class="chatpal-admin-textarea rc-input__element" type="text" value="{{config.headerstring}}" name="headerstring"></textarea>
+								</div>
+								<div>
+									<small class="settings-description secondary-font-color">
+										{{_ "CHATPAL_TERM_HEADERS_DESC"}}
+									</small>
+								</div>
+							</div>
+						{{/if}}
+						{{#if $eq config.backendtype 'cloud'}}
+							<div class="input-line">
+								<label>{{_ "CHATPAL_TERM_API_KEY"}}</label>
+								<div class="chatpal-api-key">
+									<input type="text" value="{{config.apikey}}" class="chatpal-api-key-input rc-input__element" autocomplete="off" name="apikey">
+									{{#if $not validated}}
+										<i class="icon-attention"></i>
+									{{else}}
+										<i class="icon-ok"></i>
+									{{/if}}
+									<button disabled="{{$not validated}}" class="button primary chatpal-newkey"><span>{{_ "CHATPAL_TERM_REFRESH_KEY"}}</span></button>
+									<div style="clear: both"></div>
+								</div>
+								{{#if $not validated}}
+								<div>
+									<small class="settings-description secondary-font-color">
+										<!-- TODO translate -->
+										<b>{{_ "CHATPAL_SENTENCE_NO_API_KEY"}}</b>
+										<a href="/admin/chatpal/api-key">{{_ "CHATPAL_SENTENCE_GET_YOUR_API_KEY"}}</a>
+									</small>
+								</div>
+								{{/if}}
+							</div>
+						{{/if}}
+						</fieldset>
+						<h3>{{_ "CHATPAL_CONFIG_INDEXING"}}</h3>
+						<fieldset>
+							<div class="input-line">
+								<label>{{_ "CHATPAL_TERM_LANGUAGE"}}</label>
+								<div>
+									<select class="input-monitor rc-input__element" name="language">
+										<option selected="{{$eq config.language "none"}}" value="none">{{_ "CHATPAL_TERM_LANGUAGE_NONE"}}</option>
+										<option selected="{{$eq config.language "de"}}" value="de">{{_ "CHATPAL_TERM_LANGUAGE_DE"}}</option>
+										<option selected="{{$eq config.language "en"}}" value="en">{{_ "CHATPAL_TERM_LANGUAGE_EN"}}</option>
+									</select>
+								</div>
+							</div>
+							<div class="input-line">
+								<label>{{_ "CHATPAL_TERM_INDEX_BATCHSIZE_IN_HOURS"}}</label>
+								<div>
+									<input class="rc-input__element" type="number" value="{{config.batchsize}}" autocomplete="off" name="batchsize">
+								</div>
+							</div>
+							<div class="input-line">
+								<label>{{_ "CHATPAL_TERM_WAIT_BETWEEN_INDEX_BATCHES_IN_MILLISECONDS"}}</label>
+								<div>
+									<input class="rc-input__element" type="number" value="{{config.timeout}}" autocomplete="off" name="timeout">
+								</div>
+							</div>
+						</fieldset>
+						<h2>{{_ "CHATPAL_CONFIG_SEARCH"}}</h2>
+						<fieldset>
+							<div class="input-line">
+								<label>{{_ "CHATPAL_TERM_DOCUMENTS_PER_PAGE"}}</label>
+								<div>
+									<input type="number" class="rc-input__element" value="{{config.docs_per_page}}" autocomplete="off" name="docs_per_page">
+								</div>
+							</div>
+							<div class="input-line">
+								<label>{{_ "CHATPAL_TERM_DATEFORMAT"}}</label>
+								<div>
+									<input type="text" class="rc-input__element" value="{{config.dateformat}}" autocomplete="off" name="dateformat">
+								</div>
+							</div>
+							<div class="input-line">
+								<label>{{_ "CHATPAL_TERM_TIMEFORMAT"}}</label>
+								<div>
+									<input type="text" class="rc-input__element" value="{{config.timeformat}}" autocomplete="off" name="timeformat">
+								</div>
+							</div>
+						</fieldset>
+						<div class="submit">
+							<button class="button primary send"><span>{{_ "Save"}}</span></button>
+						</div>
+					</div>
+				</form>
+			</div>
+			{{/if}}
+		</div>
+	</section>
 </template>

@@ -1,33 +1,36 @@
 <template name="ChatpalApiKey">
-	<div class="section">
-		<form>
-			<div class="rocket-form">
-				<fieldset>
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_EMAIL_ADDRESS"}}</label>
-						<div>
-							<input type="text" autocomplete="off" name="email">
+	<section class="page-container page-list">
+		{{> header sectionName=pageTitle}}
+		<div class="content">
+			<form>
+				<div class="rocket-form">
+					<fieldset>
+						<div class="input-line">
+							<label>{{_ "CHATPAL_TERM_EMAIL_ADDRESS"}}</label>
+							<div>
+								<input class="rc-input__element" type="text" autocomplete="off" name="email">
+							</div>
 						</div>
-					</div>
-					<div class="input-line">
-						<label>{{_ "CHATPAL_TERM_TERMS_AND_CONDITIONS"}}</label>
-						<div class="chatpal-tac section">
-							{{> Template.dynamic template=template}}
+						<div class="input-line">
+							<label>{{_ "CHATPAL_TERM_TERMS_AND_CONDITIONS"}}</label>
+							<div class="chatpal-tac rc-input__element">
+								{{> Template.dynamic template=template}}
+							</div>
 						</div>
-					</div>
-					<div class="input-line">
-						<div>
-							<label>
-								<input type="checkbox" name="readtac">
-								{{_ "CHATPAL_TERM_TAC_READ"}}
-							</label>
+						<div class="input-line">
+							<div>
+								<label>
+									<input type="checkbox" name="readtac">
+									{{_ "CHATPAL_TERM_TAC_READ"}}
+								</label>
+							</div>
 						</div>
+					</fieldset>
+					<div class="submit">
+						<button class="button primary send"><span>{{_ "CHATPAL_TERM_CREATE_KEY"}}</span></button>
 					</div>
-				</fieldset>
-				<div class="submit">
-					<button class="button primary send"><span>{{_ "CHATPAL_TERM_CREATE_KEY"}}</span></button>
 				</div>
-			</div>
-		</form>
-	</div>
+			</form>
+		</div>
+	</section>
 </template>

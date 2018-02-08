@@ -1,17 +1,18 @@
 #chatpal-search-result-container {
 	width: 450px;
 	position: absolute;
-	top: 61px;
+	top: 48px;
 	right: 0px;
 	background-color: white;
 	border-left: 1px solid #efefef;
+	border-top: 1px solid #efefef;
 	height: calc(100vh - 60px);
 }
 
 .chatpal-external-search-input {
 	position: absolute;
-	top: 12px;
-	right: 40px;
+	top: 6px;
+	right: 20px;
 	z-index: 1000;
 	display: block;
 }
@@ -347,6 +348,7 @@
 
 .chatpal-admin-header {
 	font-size: 18px;
+	margin-bottom: 20px;
 }
 
 .chatpal-admin-header div {
@@ -392,4 +394,12 @@
 
 .chatpal-search-result-room .chatpal-link:hover{
 	text-decoration: underline;
+}
+
+.hideSearchResult {
+	display: none;
+}
+
+.showSearchResult {
+	display: block;
 }

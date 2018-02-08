@@ -1,6 +1,6 @@
 export class ChatpalBackend {
 	constructor() {
-		this.chatpalBaseUrl = 'http://localhost:8080';//'https://api.chatpal.io';
+		this.chatpalBaseUrl = 'https://beta.chatpal.io/v1';//https://api.chatpal.io';
 		this.init();
 	}
 
@@ -29,7 +29,7 @@ export class ChatpalBackend {
 			this.backendtype = config.backendtype;
 			this.baseurl = this.chatpalBaseUrl;
 			this.language = config.language;
-			this.searchpath = '/search/query';
+			this.searchpath = '/search/search';
 			this.updatepath = '/search/update';
 			this.pingpath = '/search/ping';
 			this.clearpath = '/search/clear';
