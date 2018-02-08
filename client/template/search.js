@@ -9,7 +9,6 @@ Template.ChatpalSearch.onCreated(function() {
 	this.badRequest = new ReactiveVar(false);
 
 	this.resultType = new ReactiveVar('All');
-	$('.contextual-bar__header-title').hide();
 });
 
 Template.ChatpalSearch.onRendered(function() {
