@@ -5,6 +5,7 @@
 	right: 0px;
 	background-color: white;
 	height: 100%;
+	flex: 1 1 auto;
 }
 
 .chatpal-external-search-input {
