@@ -44,9 +44,9 @@ Template.ChatpalAdmin.onCreated(function() {
 
 	this.getStats = () => {
 		Meteor.call('chatpal.search.stats', (err, stats) => {
-			if(err) console.error(err);
+			if (err) { console.error(err); }
 
-			if(!stats.enabled) {
+			if (!stats.enabled) {
 				this.enabled.set(false);
 			} else {
 				this.enabled.set(true);
