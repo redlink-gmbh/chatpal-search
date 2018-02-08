@@ -1,6 +1,12 @@
 /* globals Inject */
 Meteor.startup(() => {
 
+	RocketChat.models.Permissions.upsert('chatpal-admin', {
+		$setOnInsert: {
+			_id: 'chatpal-admin',
+			roles: ['admin']
+		}
+	});
 	/*
 	Meteor.defer(function() {
 		if (!RocketChat.models.Users.db.findOneById('chatpal')) {

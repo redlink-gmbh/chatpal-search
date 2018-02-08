@@ -9,33 +9,42 @@ Meteor.methods({
 		try {
 			return Chatpal.service.SearchService.search(text, page, type, filters);
 		} catch (e) {
-			throw new Meteor.Error("chatpal-error", e);
+			throw new Meteor.Error('chatpal-error', e);
 		}
 	}
 });
 
 Meteor.methods({
 	'chatpal.search.stats'() {
+
+		if (!RocketChat.authz.hasAllPermission(Meteor.userId(), 'chatpal-admin')) { throw new Meteor.Error('chatpal-error', 'Access denied'); }
+
 		try {
 			return Chatpal.service.SearchService.getStatistics();
 		} catch (e) {
-			throw new Meteor.Error("chatpal-error", e);
+			throw new Meteor.Error('chatpal-error', e);
 		}
 	}
 });
 
 Meteor.methods({
 	'chatpal.utils.reindex'() {
+
+		if (!RocketChat.authz.hasAllPermission(Meteor.userId(), 'chatpal-admin')) { throw new Meteor.Error('chatpal-error', 'Access denied'); }
+
 		try {
 			return Chatpal.service.SearchService.reindex();
 		} catch (e) {
-			throw new Meteor.Error("chatpal-error", e);
+			throw new Meteor.Error('chatpal-error', e);
 		}
 	}
 });
 
 Meteor.methods({
 	'chatpal.config.set'(config) {
+
+		if (!RocketChat.authz.hasAllPermission(Meteor.userId(), 'chatpal-admin')) { throw new Meteor.Error('chatpal-error', 'Access denied'); }
+
 		//stop all services
 		Object.keys(Chatpal.service).forEach((key) => {
 			Chatpal.service[key].stop();
@@ -64,6 +73,9 @@ Meteor.methods({
 
 Meteor.methods({
 	'chatpal.config.get'() {
+
+		if (!RocketChat.authz.hasAllPermission(Meteor.userId(), 'chatpal-admin')) { throw new Meteor.Error('chatpal-error', 'Access denied'); }
+
 		const config = RocketChat.models.Settings.findById('CHATPAL_CONFIG').fetch();
 		return (config && config.length > 0) ? config[0].value : undefined;
 	}
@@ -83,6 +95,9 @@ Meteor.methods({
 
 Meteor.methods({
 	'chatpal.utils.renewkey'(key) {
+
+		if (!RocketChat.authz.hasAllPermission(Meteor.userId(), 'chatpal-admin')) { throw new Meteor.Error('chatpal-error', 'Access denied'); }
+
 		return Chatpal.Backend.renewKey(key);
 	}
 });
