@@ -1,31 +1,14 @@
+
 Template.ChatpalSearch.onCreated(function() {
 
-	this.pattern = new RegExp('^((create-channel)|(account)|(admin.*)|(mailer)|(emoji-custom)|(custom-sounds))$');
 
 	this.enabled = new ReactiveVar(true);
-	this.chatpalActivated = new ReactiveVar(false);
 	this.result = new ReactiveVar;
 	this.loading = new ReactiveVar(false);
 	this.showResults = new ReactiveVar(false);
 	this.badRequest = new ReactiveVar(false);
 
 	this.resultType = new ReactiveVar('All');
-
-	this.autorun(() => {
-		const routeName = FlowRouter.getRouteName();
-
-		Meteor.call('chatpal.config.get', (err, config) => {
-			if (!err && config) {
-				this.chatpalActivated.set(config.chatpalActivated);
-			}
-		});
-
-		if (this.pattern.test(routeName) || !this.chatpalActivated.get()) {
-			$('#chatpal-external-search').hide();
-		} else {
-			$('#chatpal-external-search').show();
-		}
-	});
 });
 
 Template.ChatpalSearch.onRendered(function() {
@@ -40,9 +23,7 @@ Template.ChatpalSearch.onRendered(function() {
 		this.loading.set(true);
 		this.badRequest.set(false);
 
-		if (type) {
-			this.resultType.set(type);
-		}
+		if (type) { this.resultType.set(type); }
 
 		this.showResults.set(true);
 
@@ -106,8 +87,7 @@ Template.ChatpalSearch.helpers({
 	},
 
 	resultRoomDocs() {
-		const result = Template.instance().result.get();
-		console.log(123, result);
+		const result = Template.instance().result.get();console.log(123, result);
 		if (result && result.rooms) {
 			return result.rooms.docs;
 		}
@@ -152,12 +132,9 @@ Template.ChatpalSearch.helpers({
 		const result = Template.instance().result.get();
 		if (result) {
 			switch (result.numFound) {
-				case 0:
-					return TAPi18n.__('CHATPAL_SEARCH_NO_RESULTS');
-				case 1:
-					return TAPi18n.__('CHATPAL_SEARCH_ONE_RESULTS');
-				default:
-					return TAPi18n.__('CHATPAL_SEARCH_RESULTS', result.numFound);
+				case 0: return TAPi18n.__('CHATPAL_SEARCH_NO_RESULTS');
+				case 1: return TAPi18n.__('CHATPAL_SEARCH_ONE_RESULTS');
+				default: return TAPi18n.__('CHATPAL_SEARCH_RESULTS', result.numFound);
 			}
 		}
 	},
@@ -171,8 +148,8 @@ Template.ChatpalSearch.helpers({
 		const result = Template.instance().result.get();
 		if (result) {
 			return {
-				currentPage: 1 + result.start / result.pageSize,
-				numOfPages: Math.ceil(result.numFound / result.pageSize)
+				currentPage: 1 + result.start/result.pageSize,
+				numOfPages: Math.ceil(result.numFound/result.pageSize)
 			};
 		}
 	},
@@ -199,10 +176,6 @@ Template.ChatpalSearch.helpers({
 
 	showResults() {
 		return Template.instance().showResults.get();
-	},
-
-	isActivated() {
-		return Template.instance().chatpalActivated.get();
 	}
 });
 

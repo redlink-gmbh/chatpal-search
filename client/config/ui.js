@@ -8,13 +8,9 @@ Meteor.startup(function() {
 		}
 	});
 
-	RocketChat.TabBar.removeButton('message-search');
-	RocketChat.TabBar.addButton({
-		groups: ['channel', 'group', 'direct'],
-		id: 'message-search',
+	RocketChat.TabBar.updateButton('message-search', {
 		i18nTitle: 'CHATPAL_SEARCH',
 		icon: 'chatpal',
-		template: 'ChatpalSearch',
-		order: 1
+		template: 'ChatpalSearch'
 	});
 });

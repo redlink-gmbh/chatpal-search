@@ -142,6 +142,20 @@ Template.ChatpalAdmin.onCreated(function() {
 			}
 
 			toastr.info(TAPi18n.__('CHATPAL_MSG_INFO_CONFIG_STORED_SUCCESSFULLY'));
+
+			if (config.chatpalActivated) {
+				RocketChat.TabBar.updateButton('message-search', {
+					i18nTitle: 'CHATPAL_SEARCH',
+					icon: 'chatpal',
+					template: 'ChatpalSearch'
+				});
+			} else {
+				RocketChat.TabBar.updateButton('message-search', {
+					i18nTitle: 'Search_Messages',
+					icon: 'magnifier',
+					template: 'messageSearch',
+				});
+			}
 		});
 	};
 
