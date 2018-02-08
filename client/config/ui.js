@@ -48,4 +48,6 @@ $('body').on('DOMNodeInserted', function(e) {
 		$('.chatpal-external-search-input').css({right: 20, top:6});
 		$('#chatpal-search-result-container').css({top: $('.rc-header').outerHeight(false)});
 	}
+}).on('click', '.rc-room-actions button', function() {
+	$('.chatpal-search-container-close').click();
 });
