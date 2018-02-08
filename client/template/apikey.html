@@ -1,14 +1,19 @@
 <template name="ChatpalApiKey">
 	<section class="page-container page-list">
-		<h2>
-			<div class="chatpal-admin-header-icon">
-				{{> icon block="chatpal-header-icon" icon="chatpal"}}
-			</div>
-			<span>
-				{{_ pageTitle}}
-			</span>
-		</h2>
+		<header class="chatpal-admin-title">
+			<h2>
+				<div class="chatpal-admin-header-icon">
+					{{> icon block="chatpal-header-icon" icon="chatpal"}}
+				</div>
+				<span>
+					{{_ pageTitle}}
+				</span>
+			</h2>
+		</header>
 		<div class="content">
+			{{#unless hasPermission 'chatpal-admin'}}
+			<p>{{_ "You_are_not_authorized_to_view_this_page"}}</p>
+			{{else}}
 			<form>
 				<div class="rocket-form">
 					<fieldset>
@@ -38,6 +43,7 @@
 					</div>
 				</div>
 			</form>
+			{{/unless}}
 		</div>
 	</section>
 </template>
