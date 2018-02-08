@@ -9,7 +9,10 @@ Meteor.startup(function() {
 	});
 
 	RocketChat.TabBar.removeButton('message-search');
+
 });
+
+let NEW_HEADER_VERSION = false;
 
 $('body').on('DOMNodeInserted', function(e) {
 	const rc = $(e.target).find('#rocket-chat');
@@ -21,15 +24,27 @@ $('body').on('DOMNodeInserted', function(e) {
 		Blaze.renderWithData(Template.ChatpalSearch, {}, container[0]);
 	}
 
-	const menu = $(e.target).find('.rc-header__block-action');
-	if (menu[0]) {
-		$('.chatpal-external-search-input').css({right: menu.width()+20, top: 10});
-		$('#chatpal-search-result-container').css({top: $('.rc-header').outerHeight(false)});
+	if ($(e.target).find('.rc-header')[0]) {
+		NEW_HEADER_VERSION = true;
+	}
+
+	if (NEW_HEADER_VERSION) {
+		const menu = $(e.target).find('.rc-header__block-action');
+		if (menu[0]) {
+			$('.chatpal-external-search-input').css({right: menu.width()+20, top: 10});
+			$('#chatpal-search-result-container').css({top: $('.rc-header').outerHeight(false)});
+		}
+	} else {
+		const fixedTitle = $(e.target).find('.fixed-title');
+		if (fixedTitle) {
+			$('.chatpal-external-search-input').css({right: 40, top: 11});
+			$('#chatpal-search-result-container').css({top: fixedTitle.outerHeight(false)-1});
+		}
 	}
 
 }).on('DOMNodeRemoved', function() {
 	const menu = $('.rc-header__block-action');
-	if (!menu[0]) { //TODO is callen to often!
+	if (!menu[0] && NEW_HEADER_VERSION) { //TODO is callen to often!
 		$('.chatpal-external-search-input').css({right: 20, top:6});
 		$('#chatpal-search-result-container').css({top: $('.rc-header').outerHeight(false)});
 	}
