@@ -152,7 +152,9 @@ Template.ChatpalAdmin.onCreated(function() {
 		Meteor.call('chatpal.config.set', config, (err) => {
 			if (err) {
 				console.error(err);
-				return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_APIKEY_NOT_VALID'));
+				return config.backendtype === 'cloud' ?
+					toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_APIKEY_NOT_VALID')) :
+					toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CANNOT_CONNECT_TO_BACKEND'));
 			}
 
 			toastr.info(TAPi18n.__('CHATPAL_MSG_INFO_CONFIG_STORED_SUCCESSFULLY'));

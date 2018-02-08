@@ -296,6 +296,7 @@ class ChatpalSearchService {
 
 	stop() {
 		if (this.enabled && this.indexer) {
+			this.enabled = false;
 			this.indexer.stop();
 		}
 	}
