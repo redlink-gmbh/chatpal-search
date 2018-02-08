@@ -1,6 +1,13 @@
 <template name="ChatpalApiKey">
 	<section class="page-container page-list">
-		{{> header sectionName=pageTitle}}
+		<h2>
+			<div class="chatpal-admin-header-icon">
+				{{> icon block="chatpal-header-icon" icon="chatpal"}}
+			</div>
+			<span>
+				{{_ pageTitle}}
+			</span>
+		</h2>
 		<div class="content">
 			<form>
 				<div class="rocket-form">

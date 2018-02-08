@@ -6,10 +6,7 @@ Template.ChatpalAdmin.onDestroyed(function() {
 
 Template.ChatpalAdmin.onCreated(function() {
 
-	this.loadingConfig = new ReactiveVar(true);
-
-	this.validated = new ReactiveVar(false);
-	this.config = new ReactiveVar({
+	const default_config = {
 		backendtype:'cloud',
 		docs_per_page: 5,
 		dateformat: 'MMM Do',
@@ -18,7 +15,11 @@ Template.ChatpalAdmin.onCreated(function() {
 		batchsize: 24,
 		timeout: 10000,
 		headerstring: ''
-	});
+	};
+
+	this.loadingConfig = new ReactiveVar(true);
+
+	this.validated = new ReactiveVar(false);
 
 	this.messagesIndexed = new ReactiveVar(0);
 	this.usersIndexed = new ReactiveVar(0);
@@ -26,7 +27,14 @@ Template.ChatpalAdmin.onCreated(function() {
 	this.indexingRunning = new ReactiveVar(false);
 	this.enabled = new ReactiveVar(false);
 
+
+	if (this.data.key()) { default_config.apikey = this.data.key(); }
+	if (this.data.type()) { default_config.backendtype = this.data.type(); }
+
+	this.config = new ReactiveVar(default_config);
+
 	Meteor.call('chatpal.config.get', (err, config) => {
+
 		//overwrite default settings
 		if (!err && config) {
 
@@ -44,9 +52,9 @@ Template.ChatpalAdmin.onCreated(function() {
 
 	this.getStats = () => {
 		Meteor.call('chatpal.search.stats', (err, stats) => {
-			if(err) console.error(err);
+			if (err) { console.error(err); }
 
-			if(!stats.enabled) {
+			if (!stats.enabled) {
 				this.enabled.set(false);
 			} else {
 				this.enabled.set(true);

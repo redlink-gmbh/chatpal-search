@@ -360,11 +360,6 @@
 	display: inline-block;
 }
 
-.chatpal-admin-header-icon {
-	top: 3px;
-	position: relative;
-}
-
 .chatpal-info-box {
 	margin-right: 20px;
 	text-align: center;
@@ -421,3 +416,27 @@
 	border-bottom: 2px solid #e6e6e6;
 	padding-bottom: 30px;
 }
+
+.chatpal-admin-title {
+	padding: 0 10px 0 20px;
+	border-bottom: 1px solid #eaeaea;
+}
+
+.chatpal-admin-title h2 {
+	font-size: 22px;
+	font-weight: 500;
+	line-height: 29px;
+	margin: 15px 0;
+}
+
+.chatpal-admin-title h2 span {
+	margin-left: -6px;
+}
+
+
+.chatpal-admin-header-icon {
+	top: 4px;
+	position: relative;
+	display: inline-block;
+}
+

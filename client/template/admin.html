@@ -1,6 +1,15 @@
 <template name="ChatpalAdmin">
 	<section class="page-container page-list">
-		{{> header sectionName=pageTitle}}
+		<header class="chatpal-admin-title">
+			<h2>
+				<div class="chatpal-admin-header-icon">
+					{{> icon block="chatpal-header-icon" icon="chatpal"}}
+				</div>
+				<span>
+					{{_ pageTitle}}
+				</span>
+			</h2>
+		</header>
 		<div class="content">
 			{{#if loadingConfig}}
 				<div class="loading">
@@ -14,9 +23,6 @@
 			{{#if enabled}}
 			<div class="chatpal-index-info">
 				<h2 class="chatpal-admin-header">
-					<div class="chatpal-admin-header-icon">
-						{{> icon block="chatpal-header-icon" icon="chatpal"}}
-					</div>
 					<div>{{_ "CHATPAL_TERM_INDEX"}}</div>
 				</h2>
 				<div class="chatpal-info-box">
@@ -38,9 +44,6 @@
 			{{/if}}
 			<div>
 				<h2 class="chatpal-admin-header">
-					<div class="chatpal-admin-header-icon">
-						{{> icon block="chatpal-header-icon" icon="chatpal"}}
-					</div>
 					<div>{{_ "CHATPAL_TERM_CONFIGURATION"}}</div>
 				</h2>
 				<form>
