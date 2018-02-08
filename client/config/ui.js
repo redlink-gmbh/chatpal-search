@@ -23,14 +23,14 @@ $('body').on('DOMNodeInserted', function(e) {
 
 	const menu = $(e.target).find('.rc-header__block-action');
 	if (menu[0]) {
-		$('.chatpal-external-search-input').css({right: menu.width()+20, top: 10});console.log($('#chatpal-search-result-container')[0])
-		$('#chatpal-search-result-container').css({top: 57});
+		$('.chatpal-external-search-input').css({right: menu.width()+20, top: 10});
+		$('#chatpal-search-result-container').css({top: $('.rc-header').outerHeight(false)});
 	}
 
 }).on('DOMNodeRemoved', function() {
 	const menu = $('.rc-header__block-action');
 	if (!menu[0]) { //TODO is callen to often!
 		$('.chatpal-external-search-input').css({right: 20, top:6});
-		$('#chatpal-search-result-container').css({top: 48});
+		$('#chatpal-search-result-container').css({top: $('.rc-header').outerHeight(false)});
 	}
 });

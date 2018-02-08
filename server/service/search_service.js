@@ -242,13 +242,13 @@ class ChatpalIndexer {
 		try {
 			const result = HTTP.call('POST', Chatpal.Backend.baseurl + Chatpal.Backend.searchpath, options);
 
-			if (result.data.response.numFound > 0) {logger("Foudn date 0", new Date(result.data.response.docs[0].created).valueOf())
+			if (result.data.response.numFound > 0) {
 				return new Date(result.data.response.docs[0].created).valueOf();
 			} else {
 				return new Date().valueOf();
 			}
 		} catch (e) {
-			logger && logger.warn("cannot get latest date - complete reindex is triggered");
+			logger && logger.warn('cannot get latest date - complete reindex is triggered');
 			return new Date().valueOf();
 		}
 	}
