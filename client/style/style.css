@@ -198,6 +198,7 @@
 	padding: 0 0 0 46px;
 	line-height: 20px;
 	margin-top: 5px;
+	overflow-x: hidden;
 }
 
 .chatpal-search-result-single .chatpal-message em {
