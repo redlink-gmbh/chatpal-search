@@ -153,7 +153,7 @@ Template.ChatpalAdmin.onCreated(function() {
 				RocketChat.TabBar.updateButton('message-search', {
 					i18nTitle: 'Search_Messages',
 					icon: 'magnifier',
-					template: 'messageSearch',
+					template: 'messageSearch'
 				});
 			}
 		});
