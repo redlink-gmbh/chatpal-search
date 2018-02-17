@@ -4,6 +4,7 @@ Meteor.startup(() => {
 	// we need to provide an initial configuration which is loaded even if invalid
 	// lateron, we'll only accept valid configurations
 	const initialConfig = {
+		chatpalActivated: false,
 		backendtype: 'cloud',
 		apikey: '',
 		docs_per_page: 5,
