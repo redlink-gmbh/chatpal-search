@@ -19,7 +19,7 @@ class ChatpalIndexer {
 	}
 
 	reindex() {
-		if(!this.running) {
+		if (!this.running) {
 			this.bootstrap(true);
 		}
 	}
@@ -285,18 +285,16 @@ class ChatpalSearchService {
 	}
 
 	start() {
-		this.enabled = Chatpal.Backend.enabled;
 
 		logger && logger.info('start search service');
 
-		if (this.enabled) {
+		if (Chatpal.Backend.enabled) {
 			this.indexer = new ChatpalIndexer(Chatpal.Backend.refresh);
 		}
 	}
 
 	stop() {
-		if (this.enabled && this.indexer) {
-			this.enabled = false;
+		if (Chatpal.Backend.enabled && this.indexer) {
 			this.indexer.stop();
 		}
 	}
@@ -461,10 +459,10 @@ class ChatpalSearchService {
 		HTTP.call('POST', Chatpal.Backend.baseurl + Chatpal.Backend.searchpath, options, (err, data) => {
 
 			if (err) {
-				if (err.response.statusCode === 400) {
-					callback({status:err.response.statusCode, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_BAD_QUERY'});
+				if (err.response && err.response.statusCode === 400) {
+					callback({status:400, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_BAD_QUERY'});
 				} else {
-					callback({status:err.response.statusCode, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_FAILED'});
+					callback({status:err.response ? err.response.statusCode : 0, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_FAILED'});
 				}
 			} else {
 				const result = this._alignResponse(JSON.parse(data.content));
@@ -488,10 +486,10 @@ class ChatpalSearchService {
 		HTTP.call('POST', Chatpal.Backend.baseurl + Chatpal.Backend.searchpath, options, (err, data) => {
 
 			if (err) {
-				if (err.response.statusCode === 400) {
-					callback({status:err.response.statusCode, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_BAD_QUERY'});
+				if (err.response && err.response.statusCode === 400) {
+					callback({status:400, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_BAD_QUERY'});
 				} else {
-					callback({status:err.response.statusCode, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_FAILED'});
+					callback({status:err.response ? err.response.statusCode : 0, msg:'CHATPAL_MSG_ERROR_SEARCH_REQUEST_FAILED'});
 				}
 			} else {
 				const result = this._alignGroupedResponse(JSON.parse(data.content));
@@ -503,7 +501,7 @@ class ChatpalSearchService {
 	}
 
 	index(m) {
-		if (this.enabled) {
+		if (Chatpal.Backend.enabled) {
 
 			const options = {data:ChatpalIndexer.getIndexMessageDocument(m)};
 
@@ -514,7 +512,7 @@ class ChatpalSearchService {
 	}
 
 	indexUser(u) {
-		if (this.enabled) {
+		if (Chatpal.Backend.enabled) {
 
 			const options = {data:ChatpalIndexer.getIndexUserDocument(u)};
 
@@ -533,7 +531,7 @@ class ChatpalSearchService {
 	}
 
 	indexRoom(r) {
-		if (this.enabled) {
+		if (Chatpal.Backend.enabled) {
 
 			const options = {data:ChatpalIndexer.getIndexRoomDocument(r)};
 
@@ -562,7 +560,7 @@ class ChatpalSearchService {
 	}
 
 	reindex() {
-		if (this.enabled) {
+		if (Chatpal.Backend.enabled) {
 
 			logger && logger.debug('Reindex');
 
@@ -571,7 +569,7 @@ class ChatpalSearchService {
 	}
 
 	getStatistics() {
-		if (this.enabled) {
+		if (Chatpal.Backend.enabled) {
 
 			const options = {
 				params: {
@@ -621,7 +619,7 @@ class ChatpalSearchService {
 	}
 
 	remove(m) {
-		if (this.enabled) {
+		if (Chatpal.Backend.enabled) {
 			logger && logger.debug('Remove document', m);
 
 			const options = {data:{
@@ -646,7 +644,7 @@ class ChatpalSearchService {
 			}
 		});
 
-		if (this.enabled) {
+		if (Chatpal.Backend.enabled) {
 			this[`_searchAsync${ type }`](text, page, filters, bound_callback);
 		} else {
 			bound_callback('backend is currently not enabled');
