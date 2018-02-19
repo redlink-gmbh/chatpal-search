@@ -34,6 +34,7 @@ TAPi18n.loadTranslations({
 		CHATPAL_TERM_MESSAGES_ONLY: 'Messages only',
 		CHATPAL_TERM_MESSAGES: 'Messages',
 		CHATPAL_TERM_USERS: 'Users',
+		CHATPAL_TERM_ENABLED: 'Chatpal Search enabled',
 		CHATPAL_TERM_SHOW_MORE: 'show more',
 		CHATPAL_TERM_SEND_DIRECT_MESSAGE: 'send direct message',
 		CHATPAL_TERM_INDEX_BATCHSIZE_IN_HOURS: 'Index-Batchsize (in Hours)',
@@ -50,6 +51,7 @@ TAPi18n.loadTranslations({
 		CHATPAL_MSG_ERROR_EMAIL_MUST_BE_VALID: 'Email must be valid',
 		CHATPAL_MSG_KEY_CREATED_SUCCESSFULLY: 'API Key created successfully',
 		CHATPAL_MSG_ERROR_HEADERS_ARE_NOT_WELL_FORMATED: 'Headers are not well formated. Format: <name>:<value>',
+		CHATPAL_MSG_WARN_NOT_ACTIVATED: 'Chatpal Search is not activated',
 		CHATPAL_TERM_EMAIL_ADDRESS: 'Email Address',
 		CHATPAL_TERM_TERMS_AND_CONDITIONS: 'Terms and Conditions',
 		CHATPAL_TERM_TAC_READ: 'I have read the terms and conditions',
@@ -60,7 +62,8 @@ TAPi18n.loadTranslations({
 		CHATPAL_TERM_CONFIGURATION: 'Configuration',
 		CHATPAL_TERM_INDEX: 'Index',
 		CHATPAL_TERM_ROOMS: 'Rooms',
-		CHATPAL_TERM_GOTO_ROOM: 'Go to room'
+		CHATPAL_TERM_GOTO_ROOM: 'Go to room',
+		No: 'No'
 	},
 	de: {
 		CHATPAL: 'Chatpal',
@@ -97,6 +100,7 @@ TAPi18n.loadTranslations({
 		CHATPAL_TERM_MESSAGES_ONLY: 'Nur Nachrichten',
 		CHATPAL_TERM_MESSAGES: 'Nachrichten',
 		CHATPAL_TERM_USERS: 'Personen',
+		CHATPAL_TERM_ENABLED: 'Chatpal Suche aktiviert',
 		CHATPAL_TERM_SHOW_MORE: 'mehr anzeigen',
 		CHATPAL_TERM_SEND_DIRECT_MESSAGE: 'Nachricht senden',
 		CHATPAL_TERM_INDEX_BATCHSIZE_IN_HOURS: 'Index-Batchsize (in Stunden)',
@@ -113,6 +117,7 @@ TAPi18n.loadTranslations({
 		CHATPAL_MSG_ERROR_EMAIL_MUST_BE_VALID: 'Email ist nicht korrekt',
 		CHATPAL_MSG_KEY_CREATED_SUCCESSFULLY: 'API Key erfolgreich erzeugt',
 		CHATPAL_MSG_ERROR_HEADERS_ARE_NOT_WELL_FORMATED: 'Format der Headers nicht korrekt',
+		CHATPAL_MSG_WARN_NOT_ACTIVATED: 'Chatpal Suche nicht aktiviert',
 		CHATPAL_TERM_EMAIL_ADDRESS: 'Email Adresse',
 		CHATPAL_TERM_TERMS_AND_CONDITIONS: 'Allgemeine Geschäftsbedingungen',
 		CHATPAL_TERM_TAC_READ: 'Ich habe die allgemeinen Geschäftsbedingungen gelesen',
@@ -123,6 +128,7 @@ TAPi18n.loadTranslations({
 		CHATPAL_TERM_CONFIGURATION: 'Einstellungen',
 		CHATPAL_TERM_INDEX: 'Index',
 		CHATPAL_TERM_ROOMS: 'Räume',
-		CHATPAL_TERM_GOTO_ROOM: 'Link zum Raum'
+		CHATPAL_TERM_GOTO_ROOM: 'Link zum Raum',
+		No: 'Nein'
 	}
 }, 'project');

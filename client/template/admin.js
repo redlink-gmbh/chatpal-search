@@ -127,6 +127,10 @@ Template.ChatpalAdmin.onCreated(function() {
 			return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CONFIG_CANNOT_BE_STORED'));
 		}
 
+		if (!config.chatpalActivated) {
+			toastr.warning(TAPi18n.__('CHATPAL_MSG_WARN_NOT_ACTIVATED'));
+		}
+
 		if (config.backendtype === 'onsite') {
 			try {
 				//parse headers

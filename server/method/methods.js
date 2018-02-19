@@ -52,12 +52,6 @@ Meteor.methods({
 		//test settings
 		Chatpal.Backend.init(config);
 
-		if (!Chatpal.Backend.enabled) {
-			if (config.chatpalActivated) {
-				// it is not intentional that the Backend is disabled, so inform the user
-				throw new Meteor.Error('cannot enable chatpal backend');
-			}
-		}
 		//make settings
 		//check if config already exists
 		const settings = RocketChat.models.Settings.findById('CHATPAL_CONFIG').fetch();
@@ -67,9 +61,9 @@ Meteor.methods({
 			RocketChat.models.Settings.createWithIdAndValue('CHATPAL_CONFIG', config);
 		}
 
-		if (!Chatpal.Backend.enabled) { throw new Error('cannot enable chatpal backend'); }
-
+		if (config.chatpalActivated && !Chatpal.Backend.enabled) { throw new Error('cannot enable chatpal backend'); }
 		//start all services
+
 		Object.keys(Chatpal.service).forEach((key) => {
 			Chatpal.service[key].start();
 		});

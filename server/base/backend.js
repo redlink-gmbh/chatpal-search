@@ -21,7 +21,8 @@ export class ChatpalBackend {
 				} else if (config.backendtype !== storedConfig.backendtype ||
 					config.baseurl !== storedConfig.baseurl ||
 					config.apikey !== storedConfig.apikey ||
-					config.language !== storedConfig.language
+					config.language !== storedConfig.language ||
+					(config.chatpalActivated && config.chatpalActivated !== storedConfig.chatpalActivated)
 				) {
 					this.refresh = true;
 				}
@@ -57,13 +58,13 @@ export class ChatpalBackend {
 				};
 			}
 
-			this.enabled = config ? this._ping() : false;
+			this.enabled = (config && config.chatpalActivated) ? this._ping() : false;
 		}
 	}
 
 	_ping() {
 		try {
-			const response = HTTP.call('GET', this.baseurl + this.pingpath, this.httpOptions);
+			const response = HTTP.call('GET', this.baseurl + this.pingpath, this.httpOptions);//TODO set timeout
 			return response.statusCode >= 200 && response.statusCode < 300;
 		} catch (e) {
 			return false;
