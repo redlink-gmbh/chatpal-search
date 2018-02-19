@@ -7,6 +7,27 @@ Meteor.startup(() => {
 			roles: ['admin']
 		}
 	});
+
+	// we need to provide an initial configuration which is loaded even if invalid
+	// lateron, we'll only accept valid configurations
+	const initialConfig = {
+		backendtype: 'cloud',
+		apikey: '',
+		docs_per_page: 5,
+		dateformat: 'MMM Do',
+		timeformat: 'H:mm A',
+		language: 'none',
+		batchsize: 24,
+		timeout: 10000,
+		headerstring: '',
+		baseurl: ''
+	};
+
+	const settings = RocketChat.models.Settings.findById('CHATPAL_CONFIG').fetch();
+	if (!settings[0]) {
+		RocketChat.models.Settings.createWithIdAndValue('CHATPAL_CONFIG', initialConfig);
+	}
+
 	/*
 	Meteor.defer(function() {
 		if (!RocketChat.models.Users.db.findOneById('chatpal')) {

@@ -6,20 +6,10 @@ Template.ChatpalAdmin.onDestroyed(function() {
 
 Template.ChatpalAdmin.onCreated(function() {
 
-	const default_config = {
-		backendtype:'cloud',
-		docs_per_page: 5,
-		dateformat: 'MMM Do',
-		timeformat: 'H:mm A',
-		language: 'none',
-		batchsize: 24,
-		timeout: 10000,
-		headerstring: ''
-	};
-
 	this.loadingConfig = new ReactiveVar(true);
 
 	this.validated = new ReactiveVar(false);
+	this.config = new ReactiveVar(undefined);
 
 	this.messagesIndexed = new ReactiveVar(0);
 	this.usersIndexed = new ReactiveVar(0);
@@ -27,14 +17,7 @@ Template.ChatpalAdmin.onCreated(function() {
 	this.indexingRunning = new ReactiveVar(false);
 	this.enabled = new ReactiveVar(false);
 
-
-	if (this.data.key()) { default_config.apikey = this.data.key(); }
-	if (this.data.type()) { default_config.backendtype = this.data.type(); }
-
-	this.config = new ReactiveVar(default_config);
-
 	Meteor.call('chatpal.config.get', (err, config) => {
-
 		//overwrite default settings
 		if (!err && config) {
 
@@ -43,7 +26,6 @@ Template.ChatpalAdmin.onCreated(function() {
 
 			this.config.set(config);
 		}
-
 		this.loadingConfig.set(false);
 
 		//check if existing key is valid
@@ -52,7 +34,9 @@ Template.ChatpalAdmin.onCreated(function() {
 
 	this.getStats = () => {
 		Meteor.call('chatpal.search.stats', (err, stats) => {
-			if (err) { console.error(err); }
+			if (err) {
+				console.error(err);
+			}
 
 			if (!stats.enabled) {
 				this.enabled.set(false);
@@ -135,9 +119,13 @@ Template.ChatpalAdmin.onCreated(function() {
 		this.indexingRunning.set(true);
 
 		//check preconditions
-		if (config.backendtype === 'onsite' && (!config.baseurl || !config.baseurl.match(/^https?:\/\/.+/))) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_BASEURL_NOT_VALID')); }
+		if (config.backendtype === 'onsite' && (!config.baseurl || !config.baseurl.match(/^https?:\/\/.+/))) {
+			return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_BASEURL_NOT_VALID'));
+		}
 
-		if (config.backendtype === 'cloud' && (!config.apikey || !this.validated.get())) { return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CONFIG_CANNOT_BE_STORED')); }
+		if (config.backendtype === 'cloud' && (!config.apikey || !this.validated.get())) {
+			return toastr.error(TAPi18n.__('CHATPAL_MSG_ERROR_CONFIG_CANNOT_BE_STORED'));
+		}
 
 		if (config.backendtype === 'onsite') {
 			try {
@@ -169,6 +157,7 @@ Template.ChatpalAdmin.events({
 	'submit form'(e, t) {
 		e.preventDefault();
 		t.save({
+			chatpalActivated: t.config.get().chatpalActivated,
 			backendtype: t.config.get().backendtype,
 			baseurl: e.target.baseurl ? e.target.baseurl.value : undefined,
 			apikey: e.target.apikey ? e.target.apikey.value : undefined,
@@ -178,7 +167,7 @@ Template.ChatpalAdmin.events({
 			language: e.target.language.value,
 			batchsize: e.target.batchsize.value || t.config.get().batchsize,
 			timeout: e.target.timeout.value || t.config.get().timeout,
-			headerstring:  e.target.headerstring ? e.target.headerstring.value : undefined
+			headerstring: e.target.headerstring ? e.target.headerstring.value : undefined
 		});
 	},
 	'click .chatpal-newkey'(e, t) {
@@ -192,6 +181,11 @@ Template.ChatpalAdmin.events({
 	'change .chatpal-admin-type'(e, t) {
 		const config = t.config.get();
 		config.backendtype = e.currentTarget.value;
+		t.config.set(config);
+	},
+	'change .chatpal-admin-activated'(e, t) {
+		const config = t.config.get();
+		config.chatpalActivated = e.currentTarget.value === 'true'; //the value is transported as String
 		t.config.set(config);
 	},
 	'input .chatpal-api-key-input'(e, t) {

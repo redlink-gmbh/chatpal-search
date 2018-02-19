@@ -49,14 +49,19 @@ Meteor.methods({
 		Object.keys(Chatpal.service).forEach((key) => {
 			Chatpal.service[key].stop();
 		});
-
 		//test settings
 		Chatpal.Backend.init(config);
 
+		if (!Chatpal.Backend.enabled) {
+			if (config.chatpalActivated) {
+				// it is not intentional that the Backend is disabled, so inform the user
+				throw new Meteor.Error('cannot enable chatpal backend');
+			}
+		}
 		//make settings
 		//check if config already exists
 		const settings = RocketChat.models.Settings.findById('CHATPAL_CONFIG').fetch();
-		if (settings && settings.length>0) {
+		if (settings && settings.length > 0) {
 			RocketChat.models.Settings.updateValueById('CHATPAL_CONFIG', config);
 		} else {
 			RocketChat.models.Settings.createWithIdAndValue('CHATPAL_CONFIG', config);

@@ -19,7 +19,7 @@ class ChatpalIndexer {
 	}
 
 	reindex() {
-		if (!this.running) {
+		if(!this.running) {
 			this.bootstrap(true);
 		}
 	}
