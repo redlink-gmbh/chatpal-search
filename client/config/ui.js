@@ -24,17 +24,17 @@ Meteor.startup(function() {
 
 RocketChat.callbacks.add('enter-room', () => {
 	Meteor.call('chatpal.config.get', (err, config) => {
-		if (err) {
-			RocketChat.TabBar.updateButton('message-search', {
-				i18nTitle: 'Search_Messages',
-				icon: 'magnifier',
-				template: 'messageSearch'
-			});
-		} else if (config.chatpalActivated) {
+		if (!err && config.chatpalActivated) {
 			RocketChat.TabBar.updateButton('message-search', {
 				i18nTitle: 'CHATPAL_SEARCH',
 				icon: 'chatpal',
 				template: 'ChatpalSearch'
+			});
+		} else {
+			RocketChat.TabBar.updateButton('message-search', {
+				i18nTitle: 'Search_Messages',
+				icon: 'magnifier',
+				template: 'messageSearch'
 			});
 		}
 	});

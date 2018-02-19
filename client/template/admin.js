@@ -153,6 +153,7 @@ Template.ChatpalAdmin.events({
 	'submit form'(e, t) {
 		e.preventDefault();
 		t.save({
+			chatpalActivated: t.config.get().chatpalActivated,
 			backendtype: t.config.get().backendtype,
 			baseurl: e.target.baseurl ? e.target.baseurl.value : undefined,
 			apikey: e.target.apikey ? e.target.apikey.value : undefined,
@@ -176,6 +177,11 @@ Template.ChatpalAdmin.events({
 	'change .chatpal-admin-type'(e, t) {
 		const config = t.config.get();
 		config.backendtype = e.currentTarget.value;
+		t.config.set(config);
+	},
+	'change .chatpal-admin-activated'(e, t) {
+		const config = t.config.get();
+		config.chatpalActivated = e.currentTarget.value === 'true'; //the value is transported as String
 		t.config.set(config);
 	},
 	'input .chatpal-api-key-input'(e, t) {
