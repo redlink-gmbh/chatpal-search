@@ -94,9 +94,9 @@ class ChatpalIndexer {
 
 		const limit = 100;
 		let skip = 0;
-		const users = [];
+		let users = [];
 		do {
-			const users = Meteor.users.find({}, {sort:{createdAt:1}, limit, skip}).fetch();
+			users = Meteor.users.find({}, {sort:{createdAt:1}, limit, skip}).fetch();
 			skip += limit;
 
 			const userDocs = [];
@@ -124,9 +124,9 @@ class ChatpalIndexer {
 
 		const limit = 100;
 		let skip = 0;
-		const rooms = [];
+		let rooms = [];
 		do {
-			const rooms = RocketChat.models.Rooms.find({t:{$ne:'d'}}, {sort:{createdAt:1}, limit, skip}).fetch();
+			rooms = RocketChat.models.Rooms.find({t:{$ne:'d'}}, {sort:{createdAt:1}, limit, skip}).fetch();
 			skip += limit;
 
 			const roomDocs = [];
